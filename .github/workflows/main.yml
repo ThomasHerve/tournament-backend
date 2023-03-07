@@ -29,3 +29,9 @@ jobs:
 
     - name: Build the Docker image
       run: docker buildx build --allow security.insecure --platform=linux/amd64,linux/arm64,linux/armhf -t ${{secrets.DOCKER_LOGIN}}/tournament-backend --output type=registry .
+    
+    - name: add ssh key
+      run: mkdir -p ~/.ssh && echo ${{ODROID_SSH_KEY}} > id_ed25519 && ssh-keyscan -H ${{ODROID_IP}} >> ~/.ssh/known_hosts
+    
+    - name: deploy docker compose
+      run: docker -H ssh://odroid@90.66.62.181 compose --env-file .env up -d
