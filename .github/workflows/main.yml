@@ -27,11 +27,14 @@ jobs:
     - name: Connect to dockerhub
       run: docker login -u ${{secrets.DOCKER_LOGIN}} -p ${{secrets.DOCKER_PASSWORD}}
 
+    - uses: webfactory/ssh-agent@v0.7.0
+      with:
+          ssh-private-key: ${{ secrets.ODROID_SSH_KEY }}
+    - name: add ssh key
+      run: ssh-keyscan -H ${{secrets.ODROID_IP}} >> ~/.ssh/known_hosts
+
     - name: Build the Docker image
       run: docker buildx build --pull --allow security.insecure --platform=linux/amd64,linux/arm64,linux/armhf -t ${{secrets.DOCKER_LOGIN}}/tournament-backend --output type=registry .
-    
-    - name: add ssh key
-      run: mkdir -p ~/.ssh && echo "${{secrets.ODROID_SSH_KEY}}" > id_ed25519 && ssh-keyscan -H ${{secrets.ODROID_IP}} >> ~/.ssh/known_hosts
-    
+        
     - name: deploy docker compose
       run: docker -H ssh://odroid@${{secrets.ODROID_IP}} compose --env-file .env up -d
