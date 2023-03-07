@@ -1,10 +1,5 @@
 version: '3.3'
 services:
-  tournament-backend:
-    container_name: tournament-backend
-    build: .
-    ports:
-      - 3000:3000
   db:
     container_name: tournament-db
     image: postgres
@@ -16,7 +11,8 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pgdata:/var/lib/posgresql/data
-    
+    ports:
+      - ${DB_PORT}:${DB_PORT}
 
 volumes:
   pgdata:

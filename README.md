@@ -35,14 +35,19 @@ $ npm install
 ## Running the app
 
 ```bash
+# Launch database in local
+docker compose -f docker-compose-local-db.yml  --env-file .env up db -d
+
 # development
 $ npm run start
 
 # watch mode
 $ npm run start:dev
+```
 
-# production mode
-$ npm run start:prod
+## Run the app in production mode
+```bash
+$ docker compose --env-file .env up --build
 ```
 
 ## Test
