@@ -4,7 +4,10 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { TournamentModule } from './tournament/tournament.module';
 import entities from './typeorm';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './users/services/users/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -23,9 +26,13 @@ import entities from './typeorm';
       }),
       inject: [ConfigService],
     }),
-    UsersModule
+    UsersModule,
+    TournamentModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [{
+    provide: APP_GUARD,
+    useClass: JwtAuthGuard,
+  },AppService],
 })
 export class AppModule {}

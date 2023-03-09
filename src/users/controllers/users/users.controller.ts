@@ -1,40 +1,54 @@
 import {
     Body,
     Controller,
-    Delete,
-    Get,
-    Param,
-    ParseIntPipe,
     Post,
     UsePipes,
     ValidationPipe,
+    Request,
+    UseGuards,
+    Get
     } from '@nestjs/common';
-import { CreateUserDto, DeleteUserDto } from 'src/users/dto/users.dtos';
+import { CreateUserDto } from 'src/users/dto/users.dtos';
 import { UsersService } from 'src/users/services/users/users.service';
-    
+import { LocalAuthGuard } from 'src/users/services/users/local-auth.guard';
+import { JwtAuthGuard } from 'src/users/services/users/jwt-auth.guard';
+import { Public } from 'src/users/services/users/public.decorator';
+
 @Controller('users')
 export class UsersController {
     constructor(private readonly userService: UsersService) {}
-  
-    @Get()
-    getUsers() {
-      return this.userService.getUsers();
-    }
     
+    @Get('all')
+    getUsers() {
+      return this.userService.getUsers()
+    }
+
+    /*
     @Get('id/:id')
     findUsersById(@Param('id', ParseIntPipe) id: number) {
       return this.userService.findUsersById(id);
-    }
+    }*/
     
     @Post('create')
     @UsePipes(ValidationPipe)
-    createUser(@Body() createUserDto: CreateUserDto) {
-      return this.userService.createUser(createUserDto);
+    async createUser(@Body() createUserDto: CreateUserDto) {
+      try {
+        await this.userService.createUser(createUserDto);
+        return {}
+      } catch(e) {
+        throw e;
+      }
     }
 
-    @Delete('delete')
-    @UsePipes(ValidationPipe)
-    deleteUser(@Body() deleteUserDto: DeleteUserDto) {
-        return this.userService.DeleteUserDto(deleteUserDto.id);
+    @Public()
+    @UseGuards(LocalAuthGuard)
+    @Post('login')
+    async login(@Request() req) {
+      return this.userService.login(req.user);
+    }
+
+    @Get('profile')
+    getProfile(@Request() req) {
+      return req.user.username;
     }
 }

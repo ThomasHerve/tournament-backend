@@ -1,33 +1,62 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/typeorm';
-import { CreateUserDto, DeleteUserDto } from 'src/users/dto/users.dtos';
+import { CreateUserDto } from 'src/users/dto/users.dtos';
 import { Repository } from 'typeorm';
+import { generate, verify } from 'password-hash'
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    private jwtService: JwtService
   ) {}
-
+  
   getUsers() {
-    return this.userRepository.find();
+    return this.userRepository.find()
   }
 
-  createUser(createUserDto: CreateUserDto) {
-    const newUser = this.userRepository.create(createUserDto);
-    return this.userRepository.save(newUser);
-  }
-
-  DeleteUserDto(id: number) {
-    if(!this.findUsersById(id)){
-        throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+  async createUser(createUserDto: CreateUserDto) {
+    // Check
+    const username = createUserDto.username
+    const user = await this.userRepository.findOne({
+      where: {username}
+    });
+    if(!user){
+      // Hash password
+      const clear = createUserDto.password
+      createUserDto.password = generate(createUserDto.password);
+      const newUser = this.userRepository.create(createUserDto);
+      return this.userRepository.save(newUser);  
     }
-    return this.userRepository.delete(id);
-      
+    throw new HttpException('User already exist', HttpStatus.CONFLICT)
+    
   }
-      
-  findUsersById(id: number): Promise<User> {
-    return this.userRepository.findOneBy({id});
+
+  // Auth management
+  async validateUser(username: string, pass: string): Promise<any> {
+    
+    const user = await this.userRepository.findOne({
+      where: {username}
+    });
+
+    if (user && verify(pass, user.password)) {
+      const { password, ...result } = user;
+      return result.username;
+    }
+    return null;
   }
+
+  async login(user: any) {
+    const username  = user
+    user = await this.userRepository.findOne({
+      where: {username}
+    });
+    const payload = { username: user.username, userId: user.id };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+
 }
