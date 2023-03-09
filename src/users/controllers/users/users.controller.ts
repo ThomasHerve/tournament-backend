@@ -11,7 +11,6 @@ import {
 import { CreateUserDto } from 'src/users/dto/users.dtos';
 import { UsersService } from 'src/users/services/users/users.service';
 import { LocalAuthGuard } from 'src/users/services/users/local-auth.guard';
-import { JwtAuthGuard } from 'src/users/services/users/jwt-auth.guard';
 import { Public } from 'src/users/services/users/public.decorator';
 
 @Controller('users')

@@ -17,6 +17,12 @@ export class UsersService {
     return this.userRepository.find()
   }
 
+  getUser(username:string) {
+    return this.userRepository.findOne({
+      where: {username}
+    });
+  }
+
   async createUser(createUserDto: CreateUserDto) {
     // Check
     const username = createUserDto.username
