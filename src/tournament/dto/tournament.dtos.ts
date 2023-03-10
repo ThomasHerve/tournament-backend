@@ -7,7 +7,6 @@ export class CreateTournamentDto {
 }
 
 export class DeleteTournamentDto {
-    @IsNotEmpty()
-    @MinLength(3)
+    //@IsNotEmpty()
     id: number;
 }

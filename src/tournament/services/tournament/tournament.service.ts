@@ -4,7 +4,7 @@ import { User } from 'src/typeorm';
 import { Repository } from 'typeorm';
 import { Tournament } from 'src/typeorm/tournament.entity';
 import { UsersService } from 'src/users/services/users/users.service';
-import { CreateTournamentDto } from 'src/tournament/dto/tournament.dtos';
+import { CreateTournamentDto, DeleteTournamentDto } from 'src/tournament/dto/tournament.dtos';
 
 @Injectable()
 export class TournamentService {
@@ -45,6 +45,19 @@ export class TournamentService {
         throw new HttpException('Tournament already exist', HttpStatus.CONFLICT)
     }
 
-    
+    async delteTournament(@Body() deleteTournamentDto: DeleteTournamentDto, username: string) {
+        const user: User = await this.userService.getUser(username)
+        const id = deleteTournamentDto.id
+        const tournament = await this.tournamentRepository.findOne({
+            where: {
+                id: id,
+                user: user
+            }
+        });
+        if(tournament){
+            return this.tournamentRepository.delete(tournament);
+        }
+        throw new HttpException("Tournament doesn't exist", HttpStatus.FORBIDDEN)
+    }
 
 }
