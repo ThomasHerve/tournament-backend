@@ -13,6 +13,27 @@ export class TournamentService {
         private readonly userService: UsersService
       ) {}
     
+    // Public
+    async getAllTournaments() {
+        return await this.tournamentRepository.find({
+            select: [
+                "name", "id"
+            ]
+        })
+    }
+
+    async getAllTournamentsFiltered(filter: string) {
+        const tournaments = await this.tournamentRepository.find({
+            select: [
+                "name", "id"
+            ]
+        })
+        return tournaments.filter((element)=>{
+            return element.name.includes(filter)
+        })
+    }
+
+    // With auth 
     async getTournaments(username: string){
         const user: User = await this.userService.getUser(username)
         return this.tournamentRepository.find({
