@@ -20,7 +20,11 @@ export class DeleteTournamentDto {
     id: number;
 }
 
-export class TournamentDto {
-    @IsNotEmpty()
-    id: number;
+// Entries
+
+export class TournamentEntries {
+    entries: {
+        name: string,
+        link: string
+    }[]
 }

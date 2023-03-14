@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -27,6 +27,7 @@ export class Tournament {
 }
 
 @Entity()
+@Unique(['name', 'tournament_id'])
 export class TournamentEntry {
   @PrimaryGeneratedColumn({
     type: 'bigint',

@@ -2,14 +2,15 @@ import { Body, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/typeorm';
 import { Repository } from 'typeorm';
-import { Tournament } from 'src/typeorm/tournament.entity';
+import { Tournament, TournamentEntry } from 'src/typeorm/tournament.entity';
 import { UsersService } from 'src/users/services/users/users.service';
-import { CreateTournamentDto, DeleteTournamentDto } from 'src/tournament/dto/tournament.dtos';
+import { CreateTournamentDto, DeleteTournamentDto, TournamentEntries } from 'src/tournament/dto/tournament.dtos';
 
 @Injectable()
 export class TournamentService {
     constructor(
         @InjectRepository(Tournament) private readonly tournamentRepository: Repository<Tournament>,
+        @InjectRepository(TournamentEntry) private readonly tournamentEntriesRepository: Repository<TournamentEntry>,
         private readonly userService: UsersService
       ) {}
     
@@ -31,6 +32,22 @@ export class TournamentService {
         return tournaments.filter((element)=>{
             return element.name.includes(filter)
         })
+    }
+
+    async getTournamentEntries(id: number) {
+        const tournament = await this.tournamentRepository.findOne({
+            where: {
+                id
+            }
+        });
+        if(tournament) {
+            return await this.tournamentEntriesRepository.find({
+                where: {
+                    tournament: tournament
+                }, select: ["name", "link"]
+            })
+        }
+        throw new HttpException("Tournament doesn't exist", HttpStatus.FORBIDDEN)
     }
 
     // With auth 
@@ -66,7 +83,7 @@ export class TournamentService {
         throw new HttpException('Tournament already exist', HttpStatus.CONFLICT)
     }
 
-    async delteTournament(@Body() deleteTournamentDto: DeleteTournamentDto, username: string) {
+    async deleteTournament(@Body() deleteTournamentDto: DeleteTournamentDto, username: string) {
         const user: User = await this.userService.getUser(username)
         const id = deleteTournamentDto.id
         const tournament = await this.tournamentRepository.findOne({
@@ -80,5 +97,35 @@ export class TournamentService {
         }
         throw new HttpException("Tournament doesn't exist", HttpStatus.FORBIDDEN)
     }
+
+    // Tournament entries
+    async insertTournamentEntries(@Body() tournamentEntries:TournamentEntries, username: string, tournament_id: number) {
+        const user: User = await this.userService.getUser(username)
+        const tournament = await this.tournamentRepository.findOne({
+            where: {
+                id: tournament_id,
+                user: user
+            }
+        });
+        if(tournament){
+            const entries = []
+            tournamentEntries.entries.forEach(element => {
+                const entry = this.tournamentEntriesRepository.create({
+                    tournament: tournament,
+                    tournament_id: tournament_id,
+                    name: element.name,
+                    link: element.link
+                })
+                this.tournamentEntriesRepository.save(entry);
+                entries.push({
+                    "name": entry.name,
+                    "link": entry.link
+                })
+            });
+            return entries
+        } 
+        throw new HttpException("Tournament doesn't exist", HttpStatus.FORBIDDEN)
+    }
+
 
 }
