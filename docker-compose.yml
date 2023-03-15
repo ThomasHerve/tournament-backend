@@ -16,7 +16,10 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pgdata:/var/lib/posgresql/data
-
+  redis:
+    container_name: redis
+    image: redis
+    
 
 volumes:
   pgdata:

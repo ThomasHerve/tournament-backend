@@ -8,6 +8,7 @@ import { TournamentModule } from './tournament/tournament.module';
 import entities from './typeorm';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './users/services/users/jwt-auth.guard';
+import { LobbyModule } from './lobby/lobby.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { JwtAuthGuard } from './users/services/users/jwt-auth.guard';
     }),
     UsersModule,
     TournamentModule,
+    LobbyModule,
   ],
   controllers: [AppController],
   providers: [{
