@@ -11,7 +11,10 @@ export class LobbyService {
             id = this.generateID();
         }
         this.lobbies.set(id, new Lobby(new Player(client, name)));  
-        return id;
+        return {
+            "id": id,
+            "password": this.generateID()
+        };
     }
 
     joinLobby(id, client: WebSocket, name: string) {
@@ -39,6 +42,10 @@ export class LobbyService {
                 if(this.lobbies.get(id).players.length === 0) {
                     this.destroyLobby(id);
                 } else {
+                    // Check if leaver is owner
+                    if(this.lobbies.get(id).players[0].webSocket === client) {
+                        this.lobbies.get(id).sendPassword(this.generateID());
+                    }
                     // Broadcast client
                     this.lobbies.get(id).sendPlayers();
                 }
@@ -49,8 +56,20 @@ export class LobbyService {
         throw new HttpException("Lobby doesn't exist", HttpStatus.FORBIDDEN)
     }
 
-    launchGame(id, client: WebSocket) {
-        // TODO
+    launchGame(id, password: string) {
+        // Check password
+        if(password !== this.lobbies.get(id).password) {
+            throw new HttpException("Not lobby owner", HttpStatus.FORBIDDEN) 
+        }
+
+        // TODO 
+        // Create game in database with all players data
+        
+
+        // Notify all clients
+        this.lobbies.get(id).sendStart();
+
+        // Remove the lobby
         this.destroyLobby(id);
     }
 
@@ -79,11 +98,10 @@ class Player {
 }
 
 class Lobby {
-    owner: Player
+    password: string;
     players: Player[]
 
     constructor(owner: Player) {
-        this.owner = owner,
         this.players = [owner]
     };
 
@@ -95,6 +113,21 @@ class Lobby {
         this.players.forEach((player)=>{
             player.webSocket.send(JSON.stringify({
                 players: names
+            }))
+        })
+    }
+
+    sendPassword(newPassword: string) {
+        this.password = newPassword;
+        this.players[0].webSocket.send(JSON.stringify({
+            "password": newPassword
+        }))
+    }
+
+    sendStart() {
+        this.players.forEach((player)=>{
+            player.webSocket.send(JSON.stringify({
+                start: true
             }))
         })
     }
