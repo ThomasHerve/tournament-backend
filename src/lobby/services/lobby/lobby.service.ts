@@ -4,12 +4,17 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 export class LobbyService {
 
     lobbies: Map<string, Lobby> = new Map<string, Lobby>();
+    players: Map<WebSocket, string> = new Map<WebSocket, string>()
 
     createLobby(client: WebSocket, name: string) {
+        if(this.players.has(client)) {
+            throw new HttpException("Already in a lobby", HttpStatus.FORBIDDEN)
+        }
         let id: string = this.generateID();
         while(this.lobbies.has(id)){
             id = this.generateID();
         }
+        this.players.set(client, id);
         this.lobbies.set(id, new Lobby(new Player(client, name)));  
         return {
             "id": id,
@@ -17,7 +22,11 @@ export class LobbyService {
         };
     }
 
-    joinLobby(id, client: WebSocket, name: string) {
+    joinLobby(id: string, client: WebSocket, name: string) {
+        if(this.players.has(client)) {
+            throw new HttpException("Already in a lobby", HttpStatus.FORBIDDEN)
+        }
+        this.players.set(client, id);
         if(this.lobbies.has(id)){
             this.lobbies.get(id).players.push(new Player(client, name));
             // Broadcast client
@@ -27,7 +36,11 @@ export class LobbyService {
         throw new HttpException("Lobby doesn't exist", HttpStatus.FORBIDDEN)
     }
 
-    leavelobby(id, client: WebSocket) {
+    leavelobby(client: WebSocket) {
+        if(!this.players.has(client)) {
+            throw new HttpException("Not in a lobby", HttpStatus.FORBIDDEN)
+        }
+        const id = this.players.get(client); 
         if(this.lobbies.has(id)){
             // Check if client is in lobby
             const user = this.lobbies.get(id).players.find((element)=>{if(element.webSocket === client) return element})
@@ -38,6 +51,7 @@ export class LobbyService {
                         return element;
                     }
                 })
+                this.players.delete(client);
                 // Destroy the lobby if nobody is in it
                 if(this.lobbies.get(id).players.length === 0) {
                     this.destroyLobby(id);
@@ -68,6 +82,11 @@ export class LobbyService {
 
         // Notify all clients
         this.lobbies.get(id).sendStart();
+
+        // Remove clients from Map
+        this.lobbies.get(id).players.forEach((player: Player)=>{
+            this.players.delete(player.webSocket);
+        });
 
         // Remove the lobby
         this.destroyLobby(id);
