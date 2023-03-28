@@ -1,12 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class LobbyService {
 
     lobbies: Map<string, Lobby> = new Map<string, Lobby>();
-    players: Map<WebSocket, string> = new Map<WebSocket, string>()
+    players: Map<Socket, string> = new Map<Socket, string>()
 
-    createLobby(client: WebSocket, name: string) {
+    createLobby(client: Socket, name: string) {
         if(this.players.has(client)) {
             throw new HttpException("Already in a lobby", HttpStatus.FORBIDDEN)
         }
@@ -22,7 +23,7 @@ export class LobbyService {
         };
     }
 
-    joinLobby(id: string, client: WebSocket, name: string) {
+    joinLobby(id: string, client: Socket, name: string) {
         if(this.players.has(client)) {
             throw new HttpException("Already in a lobby", HttpStatus.FORBIDDEN)
         }
@@ -36,18 +37,18 @@ export class LobbyService {
         throw new HttpException("Lobby doesn't exist", HttpStatus.FORBIDDEN)
     }
 
-    leavelobby(client: WebSocket) {
+    leavelobby(client: Socket) {
         if(!this.players.has(client)) {
             throw new HttpException("Not in a lobby", HttpStatus.FORBIDDEN)
         }
         const id = this.players.get(client); 
         if(this.lobbies.has(id)){
             // Check if client is in lobby
-            const user = this.lobbies.get(id).players.find((element)=>{if(element.webSocket === client) return element})
+            const user = this.lobbies.get(id).players.find((element)=>{if(element.Socket === client) return element})
             if(user !== undefined){
                 // Remove the client from the lobby
                 this.lobbies.get(id).players = this.lobbies.get(id).players.filter((element)=>{
-                    if(element.webSocket !== client) {
+                    if(element.Socket !== client) {
                         return element;
                     }
                 })
@@ -57,7 +58,7 @@ export class LobbyService {
                     this.destroyLobby(id);
                 } else {
                     // Check if leaver is owner
-                    if(this.lobbies.get(id).players[0].webSocket === client) {
+                    if(this.lobbies.get(id).players[0].Socket === client) {
                         this.lobbies.get(id).sendPassword(this.generateID());
                     }
                     // Broadcast client
@@ -85,7 +86,7 @@ export class LobbyService {
 
         // Remove clients from Map
         this.lobbies.get(id).players.forEach((player: Player)=>{
-            this.players.delete(player.webSocket);
+            this.players.delete(player.Socket);
         });
 
         // Remove the lobby
@@ -107,11 +108,11 @@ export class LobbyService {
 }
 
 class Player {
-    webSocket: WebSocket
+    Socket: Socket
     name: string
 
-    constructor(webSocket, name){
-        this.webSocket = webSocket
+    constructor(Socket, name){
+        this.Socket = Socket
         this.name = name
     }
 }
@@ -130,7 +131,7 @@ class Lobby {
             names.push(player.name)
         })
         this.players.forEach((player)=>{
-            player.webSocket.send(JSON.stringify({
+            player.Socket.send(JSON.stringify({
                 players: names
             }))
         })
@@ -138,14 +139,14 @@ class Lobby {
 
     sendPassword(newPassword: string) {
         this.password = newPassword;
-        this.players[0].webSocket.send(JSON.stringify({
+        this.players[0].Socket.send(JSON.stringify({
             "password": newPassword
         }))
     }
 
     sendStart() {
         this.players.forEach((player)=>{
-            player.webSocket.send(JSON.stringify({
+            player.Socket.send(JSON.stringify({
                 start: true
             }))
         })

@@ -7,9 +7,10 @@ import {
     OnGatewayConnection,
     OnGatewayDisconnect,
   } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
 import { LobbyService } from 'src/lobby/services/lobby/lobby.service';
 
-@WebSocketGateway(81, { transports: ['websocket'], cors: {
+@WebSocketGateway(80, { transports: ['websocket'], cors: {
     origin: '*',
 }})
 export class LobbyGateway implements OnGatewayDisconnect {
@@ -17,12 +18,12 @@ export class LobbyGateway implements OnGatewayDisconnect {
 
     constructor(private lobbyService: LobbyService){}
 
-    async handleDisconnect(client: WebSocket) {
+    async handleDisconnect(client: Socket) {
         this.lobbyService.leavelobby(client);
     }
 
     @SubscribeMessage('create')
-    async create(client: WebSocket, message) {
+    async create(client: Socket, message) {
         if(message.name === undefined) {
             throw new HttpException("Need a name", HttpStatus.FORBIDDEN)
         }
@@ -34,7 +35,7 @@ export class LobbyGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage('join')
-    async join(client: WebSocket, message) {
+    async join(client: Socket, message) {
         if(message.name === undefined) {
             throw new HttpException("Need a name", HttpStatus.FORBIDDEN)
         }
@@ -53,12 +54,12 @@ export class LobbyGateway implements OnGatewayDisconnect {
     }
 
     @SubscribeMessage('leave')
-    async leave(client: WebSocket, message) {
+    async leave(client: Socket, message) {
         this.lobbyService.leavelobby(client);
     }
 
     @SubscribeMessage('launch')
-    async launch(client: WebSocket, message) {
+    async launch(client: Socket, message) {
         if(message.id === undefined) {
             throw new HttpException("Need a room id", HttpStatus.FORBIDDEN)
         }
