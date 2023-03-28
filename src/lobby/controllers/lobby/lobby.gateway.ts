@@ -10,9 +10,7 @@ import {
 import { Socket } from 'socket.io';
 import { LobbyService } from 'src/lobby/services/lobby/lobby.service';
 
-@WebSocketGateway(80, { transports: ['websocket'], cors: {
-    origin: '*',
-}})
+@WebSocketGateway({cors: '*'})
 export class LobbyGateway implements OnGatewayDisconnect {
     @WebSocketServer() server;
 

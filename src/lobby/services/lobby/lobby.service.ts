@@ -17,10 +17,10 @@ export class LobbyService {
         }
         this.players.set(client, id);
         this.lobbies.set(id, new Lobby(new Player(client, name)));  
-        return {
+        client.emit('create', {
             "id": id,
             "password": this.generateID()
-        };
+        });
     }
 
     joinLobby(id: string, client: Socket, name: string) {
@@ -32,14 +32,16 @@ export class LobbyService {
             this.lobbies.get(id).players.push(new Player(client, name));
             // Broadcast client
             this.lobbies.get(id).sendPlayers();
-            return
+            client.emit('join', {
+                "id": id,
+            });
         }
         throw new HttpException("Lobby doesn't exist", HttpStatus.FORBIDDEN)
     }
 
     leavelobby(client: Socket) {
         if(!this.players.has(client)) {
-            throw new HttpException("Not in a lobby", HttpStatus.FORBIDDEN)
+            return
         }
         const id = this.players.get(client); 
         if(this.lobbies.has(id)){
@@ -131,24 +133,24 @@ class Lobby {
             names.push(player.name)
         })
         this.players.forEach((player)=>{
-            player.Socket.send(JSON.stringify({
+            player.Socket.emit('players' ,{
                 players: names
-            }))
+            })
         })
     }
 
     sendPassword(newPassword: string) {
         this.password = newPassword;
-        this.players[0].Socket.send(JSON.stringify({
+        this.players[0].Socket.send('password', {
             "password": newPassword
-        }))
+        })
     }
 
     sendStart() {
         this.players.forEach((player)=>{
-            player.Socket.send(JSON.stringify({
+            player.Socket.send('start', {
                 start: true
-            }))
+            })
         })
     }
 
