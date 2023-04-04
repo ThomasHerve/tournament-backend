@@ -1,15 +1,25 @@
 const http = require('http');
 
 // utils
-function post(url, data) {
+function post(url, data, token) {
     const dataString = JSON.stringify(data)
-  
+    let header = {}
+    if(token) {
+        header = {
+            'Content-Type': 'application/json',
+            'Content-Length': dataString.length,
+            Authorization: 'Bearer ' + token
+        }
+    } else {
+        header = {
+            'Content-Type': 'application/json',
+            'Content-Length': dataString.length,
+        }
+    }
+
     const options = {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': dataString.length,
-      },
+      headers: header,
       timeout: 1000, // in ms
     }
   
@@ -50,8 +60,22 @@ if(needUser) {
         username: "test",
         password: "testtest",
         email: "test@test.com"
-    }).then((res)=>{
+    }, false).then((res)=>{
         console.log("Create account: " + res)
+    });
+}
+else {
+    post("http://localhost:3000/users/login", {
+        username: "test",
+        password: "testtest",
+    }, false).then((res)=>{
+        const token = JSON.parse(res)["access_token"];
+        // We are logged
+        console.log("Logged: " + token)
+        // Get Username
+        http.get(
+             'http://localhost:3000/users/profile'  
+        , (username)=>console.log("username: " + username));
     });
 }
 
