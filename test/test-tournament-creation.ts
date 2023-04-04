@@ -50,7 +50,39 @@ function post(url, data, token) {
       req.end()
     })
   }
+
+
+function get(url, token) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    };
+
+    const req = http.request(url, options, (res) => {
+      let data = '';
+
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+
+      res.on('end', () => {
+        resolve(data);
+      });
+    });
+
+    req.on('error', (error) => {
+      reject(error);
+    });
+
+    req.end();
+  });
+}
   
+
+
 const needUser = false;
 
 
@@ -73,9 +105,7 @@ else {
         // We are logged
         console.log("Logged: " + token)
         // Get Username
-        http.get(
-             'http://localhost:3000/users/profile'  
-        , (username)=>console.log("username: " + username));
+        get('http://localhost:3000/users/profile' , token).then((username)=>console.log("username: " + username))
     });
 }
 
