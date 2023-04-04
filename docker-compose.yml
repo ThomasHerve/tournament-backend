@@ -5,6 +5,7 @@ services:
     image: thomasherve/tournament-backend
     ports:
       - 3000:3000
+    restart: always
   db:
     container_name: tournament-db
     image: postgres
@@ -16,9 +17,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pgdata:/var/lib/posgresql/data
-  redis:
-    container_name: redis
-    image: redis
+    restart: always
     
 
 volumes:
