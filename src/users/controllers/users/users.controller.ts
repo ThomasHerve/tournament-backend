@@ -16,18 +16,14 @@ import { Public } from 'src/users/services/users/public.decorator';
 @Controller('users')
 export class UsersController {
     constructor(private readonly userService: UsersService) {}
-    
-    @Get('all')
-    getUsers() {
-      return this.userService.getUsers()
-    }
-
+  
     /*
     @Get('id/:id')
     findUsersById(@Param('id', ParseIntPipe) id: number) {
       return this.userService.findUsersById(id);
     }*/
     
+    @Public()
     @Post('create')
     @UsePipes(ValidationPipe)
     async createUser(@Body() createUserDto: CreateUserDto) {
