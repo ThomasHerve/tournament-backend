@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Tournament } from './tournament.entity';
 
 @Entity()
 export class User {
@@ -26,4 +27,7 @@ export class User {
     default: '',
   })
   password: string;
+
+  @OneToMany(() => Tournament, (tournament) => tournament.user)
+  tournaments: Tournament[]
 }

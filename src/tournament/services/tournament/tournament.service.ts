@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { Tournament, TournamentEntry } from 'src/typeorm/tournament.entity';
 import { UsersService } from 'src/users/services/users/users.service';
 import { CreateTournamentDto, DeleteTournamentDto, TournamentEntries } from 'src/tournament/dto/tournament.dtos';
+import { ConnectableObservable } from 'rxjs';
 
 @Injectable()
 export class TournamentService {
@@ -38,7 +39,9 @@ export class TournamentService {
         const tournament = await this.tournamentRepository.findOne({
             where: {
                 id
-            }
+            }, relations: {
+                entries: true,
+            },
         });
         if(tournament) {
             return await this.tournamentEntriesRepository.find({
@@ -69,15 +72,18 @@ export class TournamentService {
             where: {
                 name: name,
                 user: user
-            }
+            }, relations: {
+                entries: true,
+            },
         });
         if(!tournament){
             const newTournament = this.tournamentRepository.create({
                 name: name,
-                user_id: user.id,
-                user: user
+                user: user,
+                entries: []
             });
             const tournament = await this.tournamentRepository.save(newTournament);
+            this.userService.addTournament(user, tournament)
             return {"name": tournament.name, "id": tournament.id}
         }
         throw new HttpException('Tournament already exist', HttpStatus.CONFLICT)
@@ -86,12 +92,10 @@ export class TournamentService {
     async deleteTournament(@Body() deleteTournamentDto: DeleteTournamentDto, username: string) {
         const user: User = await this.userService.getUser(username)
         const id = deleteTournamentDto.id
-        const tournament = await this.tournamentRepository.findOne({
-            where: {
-                id: id,
-                user: user
-            }
-        });
+        const tournament = user.tournaments.find((element)=>element.id === id);
+        console.log(id);
+        console.log(tournament);
+        console.log(user.tournaments)
         if(tournament){
             return this.tournamentRepository.delete(tournament);
         }
@@ -105,24 +109,23 @@ export class TournamentService {
             where: {
                 id: tournament_id,
                 user: user
-            }
+            },
+            relations: {
+                entries: true,
+            },
         });
         if(tournament){
-            const entries = []
             tournamentEntries.entries.forEach(element => {
                 const entry = this.tournamentEntriesRepository.create({
                     tournament: tournament,
-                    tournament_id: tournament_id,
                     name: element.name,
                     link: element.link
                 })
                 this.tournamentEntriesRepository.save(entry);
-                entries.push({
-                    "name": entry.name,
-                    "link": entry.link
-                })
+                tournament.entries.push(entry);
             });
-            return entries
+            await this.tournamentRepository.save(tournament);
+            return tournamentEntries;
         } 
         throw new HttpException("Tournament doesn't exist", HttpStatus.FORBIDDEN)
     }

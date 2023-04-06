@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/typeorm';
+import { Tournament, User } from 'src/typeorm';
 import { CreateUserDto } from 'src/users/dto/users.dtos';
 import { Repository } from 'typeorm';
 import { generate, verify } from 'password-hash'
@@ -17,10 +17,15 @@ export class UsersService {
     return this.userRepository.find()
   }
 
-  getUser(username:string) {
-    return this.userRepository.findOne({
-      where: {username}
+  async getUser(username:string) {
+    let user: User = await this.userRepository.findOne({
+      where: {username},
+      select: ["email", "id", "tournaments", "username"],
+      relations: {
+        tournaments: true,
+      },
     });
+    return user;
   }
 
   async createUser(createUserDto: CreateUserDto) {
@@ -33,7 +38,12 @@ export class UsersService {
       // Hash password
       const clear = createUserDto.password
       createUserDto.password = generate(createUserDto.password);
-      const newUser = this.userRepository.create(createUserDto);
+      const newUser = this.userRepository.create({
+        username: createUserDto.username,
+        password: createUserDto.password,
+        email: createUserDto.email,
+        tournaments: []
+      });
       return this.userRepository.save(newUser);  
     }
     throw new HttpException('User already exist', HttpStatus.CONFLICT)
@@ -59,10 +69,20 @@ export class UsersService {
     user = await this.userRepository.findOne({
       where: {username}
     });
-    const payload = { username: user.username, userId: user.id };
+    if(user === null) {
+      throw new HttpException('Failed to login', HttpStatus.FORBIDDEN)
+    } else {
+      const payload = { username: user.username, userId: user.id };
     return {
       access_token: this.jwtService.sign(payload),
     };
+    }
+    
+  }
+
+  async addTournament(user: User, tournament: Tournament) {
+    user.tournaments.push(tournament);
+    this.userRepository.save(user);  
   }
 
 }

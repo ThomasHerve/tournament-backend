@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, Unique } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
@@ -15,19 +15,16 @@ export class Tournament {
   })
   name: string;
 
-  @Column({
-    nullable: false
-  })
-  user_id: number;
-
-  @ManyToOne(()=>User, (User)=> User.id, { cascade: true })
-  @JoinColumn({name: 'user_id', referencedColumnName: 'id'})
+  @ManyToOne(() => User, (user) => user.tournaments, {onDelete: 'CASCADE'})
   user: User
+
+  @OneToMany(() => TournamentEntry, (entry) => entry.tournament)
+  entries: TournamentEntry[]
   
 }
 
 @Entity()
-@Unique(['name', 'tournament_id'])
+@Unique(['name', 'tournament'])
 export class TournamentEntry {
   @PrimaryGeneratedColumn({
     type: 'bigint',
@@ -47,12 +44,6 @@ export class TournamentEntry {
   })
   link: string;
 
-  @Column({
-      nullable: false
-  })
-  tournament_id: number;
-
-  @ManyToOne(()=>Tournament, (Tournament)=> Tournament.id, { cascade: true })
-  @JoinColumn({name: 'tournament_id', referencedColumnName: 'id'})
+  @ManyToOne(()=>Tournament, (tournament)=> tournament.entries, {onDelete: 'CASCADE'})
   tournament: Tournament
 }
