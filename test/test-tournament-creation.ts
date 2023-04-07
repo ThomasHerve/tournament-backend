@@ -139,36 +139,33 @@ else {
                   link: "banane"
                 },
               ]
-            },token).then((entries)=>{
-                post('http://localhost:3000/tournament/create' , {
-            name: "test"
-          }, token).then((tournament)=>{
-            const id2 = JSON.parse(tournament)["id"];
-            // Inserts fruits
-            post(`http://localhost:3000/tournament/${id2}/insert-entries`,{
-              entries: [
-                {
-                  name: "test1",
-                  link: "test1"
-                },
-                {
-                  name: "test2",
-                  link: "test2"
-                },
-              ]
-            },token).then((entries)=>{
-                get(`http://localhost:3000/tournament/${id}/entries`, false).then(e => console.log(e));
-                get(`http://localhost:3000/tournament/${id2}/entries`, false).then(e => console.log(e));
-            })
-          })
-            })
+            },token).then((entries)=>{})
 
+            post('http://localhost:3000/tournament/create' , {
+              name: "test"
+            }, token).then((tournament)=>{
+              const id2 = JSON.parse(tournament)["id"];
+              // Inserts fruits
+              post(`http://localhost:3000/tournament/${id2}/insert-entries`,{
+                entries: [
+                  {
+                    name: "test1",
+                    link: "test1"
+                  },
+                  {
+                    name: "test2",
+                    link: "test2"
+                  },
+                ]
+              },token).then((entries)=>{
+                  get(`http://localhost:3000/tournament/${id2}/entries`, false).then(e => console.log(e));
+              })
+            })
+              
           })
-          /*
-          */
         }
     });
 }
 }
 
-test(false, false);
+test(true, true);

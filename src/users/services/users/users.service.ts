@@ -44,7 +44,7 @@ export class UsersService {
         email: createUserDto.email,
         tournaments: []
       });
-      return this.userRepository.save(newUser);  
+      return this.login((await this.userRepository.save(newUser)).username);
     }
     throw new HttpException('User already exist', HttpStatus.CONFLICT)
     
@@ -74,6 +74,8 @@ export class UsersService {
     } else {
       const payload = { username: user.username, userId: user.id };
     return {
+      username: user.username,
+      email: user.email,
       access_token: this.jwtService.sign(payload),
     };
     }
