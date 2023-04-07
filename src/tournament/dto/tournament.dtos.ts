@@ -12,7 +12,15 @@ export class TournamentFilter {
 export class CreateTournamentDto {
     @IsNotEmpty()
     @MinLength(3)
-    name: string;
+    title: string
+
+    description: string
+    icon: string
+  
+    entries: {
+        name: string,
+        link: string
+    }[];
 }
 
 export class DeleteTournamentDto {

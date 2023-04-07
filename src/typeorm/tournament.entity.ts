@@ -15,6 +15,16 @@ export class Tournament {
   })
   name: string;
 
+  @Column({
+    default: '',
+  })
+  description: string;
+
+  @Column({
+    default: '',
+  })
+  icon: string;
+
   @ManyToOne(() => User, (user) => user.tournaments, {onDelete: 'CASCADE'})
   user: User
 

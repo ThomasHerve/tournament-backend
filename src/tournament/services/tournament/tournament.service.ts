@@ -67,7 +67,7 @@ export class TournamentService {
 
     async createTournament(@Body() createTournamentDto: CreateTournamentDto, username: string) {
         const user: User = await this.userService.getUser(username)
-        const name = createTournamentDto.name
+        const name = createTournamentDto.title
         const tournament = await this.tournamentRepository.findOne({
             where: {
                 name: name,
@@ -79,12 +79,20 @@ export class TournamentService {
         if(!tournament){
             const newTournament = this.tournamentRepository.create({
                 name: name,
+                description: createTournamentDto.description,
+                icon: createTournamentDto.icon,
                 user: user,
                 entries: []
             });
             const tournament = await this.tournamentRepository.save(newTournament);
             this.userService.addTournament(user, tournament)
-            return {"name": tournament.name, "id": tournament.id}
+            // Entries
+            if(createTournamentDto.entries) {
+                const entry: TournamentEntries = new TournamentEntries();
+                entry.entries = createTournamentDto.entries;
+                this.insertTournamentEntries(entry, user.username, tournament.id);
+            }
+            return {"title": tournament.name, "id": tournament.id}
         }
         throw new HttpException('Tournament already exist', HttpStatus.CONFLICT)
     }
@@ -115,6 +123,7 @@ export class TournamentService {
             },
         });
         if(tournament){
+            tournament.entries = [];
             tournamentEntries.entries.forEach(element => {
                 const entry = this.tournamentEntriesRepository.create({
                     tournament: tournament,
