@@ -135,9 +135,9 @@ else {
                 link: "banane"
               },
             ]
-          }, token).then((res)=>{
-            get(`http://localhost:3000/tournament/${JSON.parse(res)["id"]}/entries`, false).then(console.log);
-          })
+          }, token).then(
+            console.log
+          )
       }
     })
   }}

@@ -19,7 +19,7 @@ export class TournamentService {
     async getAllTournaments() {
         return await this.tournamentRepository.find({
             select: [
-                "name", "id"
+                "title", "id", "description", "entries", "icon"
             ]
         })
     }
@@ -27,11 +27,11 @@ export class TournamentService {
     async getAllTournamentsFiltered(filter: string) {
         const tournaments = await this.tournamentRepository.find({
             select: [
-                "name", "id"
+                "title", "id", "description", "entries", "icon"
             ]
         })
         return tournaments.filter((element)=>{
-            return element.name.includes(filter)
+            return element.title.includes(filter)
         })
     }
 
@@ -60,7 +60,7 @@ export class TournamentService {
             where: {
                 user: user
             }, select: [
-                "name", "id"
+                "title", "id", "description", "entries", "icon"
             ]
         })
     }
@@ -70,7 +70,7 @@ export class TournamentService {
         const name = createTournamentDto.title
         const tournament = await this.tournamentRepository.findOne({
             where: {
-                name: name,
+                title: name,
                 user: user
             }, relations: {
                 entries: true,
@@ -78,7 +78,7 @@ export class TournamentService {
         });
         if(!tournament){
             const newTournament = this.tournamentRepository.create({
-                name: name,
+                title: name,
                 description: createTournamentDto.description,
                 icon: createTournamentDto.icon,
                 user: user,
@@ -90,9 +90,9 @@ export class TournamentService {
             if(createTournamentDto.entries) {
                 const entry: TournamentEntries = new TournamentEntries();
                 entry.entries = createTournamentDto.entries;
-                this.insertTournamentEntries(entry, user.username, tournament.id);
+                await this.insertTournamentEntries(entry, user.username, tournament.id);
             }
-            return {"title": tournament.name, "id": tournament.id}
+            return {"title": tournament.title, "id": tournament.id, "description": tournament.description, "icon": tournament.icon, "entries": await this.getTournamentEntries(tournament.id)}
         }
         throw new HttpException('Tournament already exist', HttpStatus.CONFLICT)
     }

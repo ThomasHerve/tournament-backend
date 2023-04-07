@@ -13,7 +13,7 @@ export class Tournament {
     nullable: false,
     default: '',
   })
-  name: string;
+  title: string;
 
   @Column({
     default: '',
