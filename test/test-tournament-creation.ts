@@ -99,73 +99,51 @@ else {
         username: "test",
         password: "testtest",
     }, false).then((res)=>{
-        const token = JSON.parse(res)["access_token"];
-        // We are logged
-        console.log("Logged: " + token)
-        // Get Username
-        get('http://localhost:3000/users/profile' , token).then((username)=>console.log("username: " + username))
+      const token = JSON.parse(res)["access_token"];
+      // We are logged
+      console.log("Logged: " + token)
+      // Get Username
+      get('http://localhost:3000/users/profile' , token).then((username)=>console.log("username: " + username))
 
-        // Current tournaments
-        get('http://localhost:3000/tournament/all' , token).then((tournaments)=>console.log(`Tournaments before: ${tournaments}`))
+      // Current tournaments
+      get('http://localhost:3000/tournament/all' , token).then((tournaments)=>console.log(`Tournaments before: ${tournaments}`))
 
-        if(reset) {
-          get('http://localhost:3000/tournament/all' , token).then((tournaments)=>
-           {
-            const list = JSON.parse(tournaments); 
-            list.forEach(element => {
-                    post('http://localhost:3000/tournament/delete' , {
-                      id: element["id"]
-                  }, token)
-            });
-           }
-          )
-        }
-        else {
-          // Create tournament
-          post('http://localhost:3000/tournament/create' , {
-            name: "fruits"
-          }, token).then((tournament)=>{
-            const id = JSON.parse(tournament)["id"];
-            // Inserts fruits
-            console.log(`id is ${id}`)
-            post(`http://localhost:3000/tournament/${id}/insert-entries`,{
-              entries: [
-                {
-                  name: "pomme",
-                  link: "pomme"
-                },
-                {
-                  name: "banane",
-                  link: "banane"
-                },
-              ]
-            },token).then((entries)=>{})
-
-            post('http://localhost:3000/tournament/create' , {
-              name: "test"
-            }, token).then((tournament)=>{
-              const id2 = JSON.parse(tournament)["id"];
-              // Inserts fruits
-              post(`http://localhost:3000/tournament/${id2}/insert-entries`,{
-                entries: [
-                  {
-                    name: "test1",
-                    link: "test1"
-                  },
-                  {
-                    name: "test2",
-                    link: "test2"
-                  },
-                ]
-              },token).then((entries)=>{
-                  get(`http://localhost:3000/tournament/${id2}/entries`, false).then(e => console.log(e));
-              })
-            })
-              
+      if(reset) {
+        get('http://localhost:3000/tournament/all' , token).then((tournaments)=>
+         {
+          const list = JSON.parse(tournaments); 
+          list.forEach(element => {
+                  post('http://localhost:3000/tournament/delete' , {
+                    id: element["id"]
+                }, token)
+          });
+         }
+        )
+      }
+      else {
+        post('http://localhost:3000/tournament/create' , {
+            title: "fruits",
+            description: "",
+            icon: "",
+            entries: [
+              {
+                name: "pomme",
+                link: "pomme"
+              },
+              {
+                name: "banane",
+                link: "banane"
+              },
+            ]
+          }, token).then((res)=>{
+            get(`http://localhost:3000/tournament/${JSON.parse(res)["id"]}/entries`, false).then(console.log);
           })
-        }
-    });
-}
-}
+      }
+    })
+  }}
+      
 
-test(true, true);
+test(false, false);
+
+
+
