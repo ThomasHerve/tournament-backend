@@ -121,6 +121,7 @@ else {
         )
       }
       else {
+        /*
         post('http://localhost:3000/tournament/create' , {
             title: "fruits",
             description: "",
@@ -137,7 +138,8 @@ else {
             ]
           }, token).then(
             console.log
-          )
+          )*/
+          get('http://localhost:3000/tournament/all-created', token).then(console.log);
       }
     })
   }}
