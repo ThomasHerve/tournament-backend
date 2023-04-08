@@ -7,11 +7,6 @@ export class LobbyService {
 
     lobbies: Map<string, Lobby> = new Map<string, Lobby>();
     players: Map<Socket, string> = new Map<Socket, string>()
-    tournamentService: TournamentService
-
-    constructor(tournamentService: TournamentService) {
-        this.tournamentService = tournamentService;
-    }
 
     createLobby(client: Socket, name: string) {
         if(this.players.has(client)) {
@@ -25,7 +20,6 @@ export class LobbyService {
         this.lobbies.set(id, new Lobby(new Player(client, name)));  
         client.emit('create', {
             "id": id,
-            "password": this.generateID()
         });
     }
 
@@ -122,7 +116,7 @@ export class LobbyService {
         // options.tournament -> id
         if(this.lobbies.get(this.players.get(client)).owner.Socket === client) {
             try  {
-                this.tournamentService.getTournament(options.tournament.id);
+                //this.tournamentService.getTournament(options.tournament.id);
                 this.lobbies.get(this.players.get(client)).tournament_id = options.tournament.id;
                 this.lobbies.get(this.players.get(client)).sendTournament()
             } catch(e) {}
