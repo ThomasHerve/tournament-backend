@@ -180,19 +180,19 @@ class Lobby {
 
     sendTournament() {
         this.players.forEach((player)=>{
-            player.Socket.send('tournament', {
+            player.Socket.emit('tournament', {
                 tournament_id: this.tournament_id
             })
         })
     }
 
     sendOwner() {
-        this.players[0].Socket.send('owner', {})
+        this.players[0].Socket.emit('owner', {})
     }
 
     sendStart() {
         this.players.forEach((player)=>{
-            player.Socket.send('start', {
+            player.Socket.emit('start', {
                 start: true
             })
         })
