@@ -61,9 +61,9 @@ export class TournamentController {
 
     @Post(':id/update')
     @UsePipes(ValidationPipe)
-    async updateTournament(@Body() tournamentEntries:TournamentEntries, @Request() req, @Param('id', ParseIntPipe) id: number) {
+    async updateTournament(@Body() createTournamentDto: CreateTournamentDto, @Request() req, @Param('id', ParseIntPipe) id: number) {
       try {
-        return this.tournamentService.insertTournamentEntries(tournamentEntries, req.user.username, id);
+        return this.tournamentService.updateTournament(createTournamentDto, req.user.username, id);
       } catch(e) {
         throw e;
       }

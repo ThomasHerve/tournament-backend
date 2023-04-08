@@ -122,6 +122,38 @@ export class TournamentService {
         throw new HttpException("Tournament doesn't exist", HttpStatus.FORBIDDEN)
     }
 
+    async updateTournament(@Body() createTournamentDto: CreateTournamentDto, username: string, tournament_id: number) {
+        const user: User = await this.userService.getUser(username)
+        const name = createTournamentDto.title
+        const tournament = await this.tournamentRepository.findOne({
+            where: {
+                id: tournament_id,
+                user: user
+            }, relations: {
+                entries: true,
+            },
+        });
+        if(tournament){
+            const newTournament = this.tournamentRepository.create({
+                title: name,
+                description: createTournamentDto.description,
+                icon: createTournamentDto.icon,
+                user: user,
+                entries: []
+            });
+            const tournament = await this.tournamentRepository.save(newTournament);
+            this.userService.addTournament(user, tournament)
+            // Entries
+            if(createTournamentDto.entries) {
+                const entry: TournamentEntries = new TournamentEntries();
+                entry.entries = createTournamentDto.entries;
+                await this.insertTournamentEntries(entry, user.username, tournament.id);
+            }
+            return {"title": tournament.title, "id": tournament.id, "description": tournament.description, "icon": tournament.icon, "entries": await this.getTournamentEntries(tournament.id)}
+        }
+        throw new HttpException('Tournament doesn\'t exist', HttpStatus.CONFLICT)
+    }
+
     // Tournament entries
     async insertTournamentEntries(@Body() tournamentEntries:TournamentEntries, username: string, tournament_id: number) {
         const user: User = await this.userService.getUser(username)
