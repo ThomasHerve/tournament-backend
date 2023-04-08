@@ -53,6 +53,22 @@ export class TournamentService {
         throw new HttpException("Tournament doesn't exist", HttpStatus.FORBIDDEN)
     }
 
+    async getTournament(tournament_id: number) {
+        const tournament = await this.tournamentRepository.findOne({
+            where: {
+                id: tournament_id
+            }, relations: {
+                entries: true,
+            }, select: [
+                "title", "id", "description", "entries", "icon"
+            ]
+        });
+        if(!tournament) {
+            throw new HttpException("Tournament doesn't exist", HttpStatus.NOT_FOUND);
+        }
+        return tournament;
+    }
+
     // With auth 
     async getTournaments(username: string){
         const user: User = await this.userService.getUser(username)
@@ -97,13 +113,9 @@ export class TournamentService {
         throw new HttpException('Tournament already exist', HttpStatus.CONFLICT)
     }
 
-    async deleteTournament(@Body() deleteTournamentDto: DeleteTournamentDto, username: string) {
+    async deleteTournament(tournament_id: number, username: string) {
         const user: User = await this.userService.getUser(username)
-        const id = deleteTournamentDto.id
-        const tournament = user.tournaments.find((element)=>element.id === id);
-        console.log(id);
-        console.log(tournament);
-        console.log(user.tournaments)
+        const tournament = user.tournaments.find((element)=>element.id === tournament_id);
         if(tournament){
             return this.tournamentRepository.delete(tournament);
         }

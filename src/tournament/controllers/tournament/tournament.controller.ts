@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Request, UsePipes, ValidationPipe, ParseIntPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, UsePipes, ValidationPipe, ParseIntPipe, Delete } from '@nestjs/common';
 import { CreateTournamentDto, DeleteTournamentDto, TournamentEntries } from 'src/tournament/dto/tournament.dtos';
 import { TournamentService } from 'src/tournament/services/tournament/tournament.service';
 import { Public } from 'src/users/services/users/public.decorator';
@@ -12,6 +12,12 @@ export class TournamentController {
     @Get('all')
     getAllTournaments() {
       return this.tournamentService.getAllTournaments();
+    }
+
+    @Public()
+    @Get(':id')
+    getTournament(@Param('id', ParseIntPipe) id: number) {
+      return this.tournamentService.getTournament(id);
     }
 
     @Public()
@@ -43,19 +49,19 @@ export class TournamentController {
       }
     }
 
-    @Post('delete')
+    @Delete(':id')
     @UsePipes(ValidationPipe)
-    async deleteTournament(@Body() deleteTournamentDto:DeleteTournamentDto, @Request() req) {
+    async deleteTournament(@Param('id', ParseIntPipe) id: number, @Request() req) {
       try {
-        return this.tournamentService.deleteTournament(deleteTournamentDto, req.user.username);
+        return this.tournamentService.deleteTournament(id, req.user.username);
       } catch(e) {
         throw e;
       }
     }
 
-    @Post(':id/insert-entries')
+    @Post(':id/update')
     @UsePipes(ValidationPipe)
-    async insertEntries(@Body() tournamentEntries:TournamentEntries, @Request() req, @Param('id', ParseIntPipe) id: number) {
+    async updateTournament(@Body() tournamentEntries:TournamentEntries, @Request() req, @Param('id', ParseIntPipe) id: number) {
       try {
         return this.tournamentService.insertTournamentEntries(tournamentEntries, req.user.username, id);
       } catch(e) {
