@@ -115,7 +115,7 @@ export class TournamentService {
 
     async deleteTournament(tournament_id: number, username: string) {
         const user: User = await this.userService.getUser(username)
-        const tournament = user.tournaments.find((element)=>element.id === tournament_id);
+        const tournament = user.tournaments.find((element)=>element.id == tournament_id);
         if(tournament){
             return this.tournamentRepository.delete(tournament);
         }
