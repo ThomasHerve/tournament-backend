@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { TournamentService } from 'src/tournament/services/tournament/tournament.service';
 
@@ -7,6 +7,9 @@ export class LobbyService {
 
     lobbies: Map<string, Lobby> = new Map<string, Lobby>();
     players: Map<Socket, string> = new Map<Socket, string>()
+
+    @Inject(TournamentService)
+    private readonly tournamentService: TournamentService
 
     createLobby(client: Socket, name: string) {
         if(this.players.has(client)) {
@@ -116,7 +119,7 @@ export class LobbyService {
         // options.tournament -> id
         if(this.lobbies.get(this.players.get(client)).owner.Socket === client) {
             try  {
-                //this.tournamentService.getTournament(options.tournament.id);
+                this.tournamentService.getTournament(options.tournament.id);
                 this.lobbies.get(this.players.get(client)).tournament_id = options.tournament.id;
                 this.lobbies.get(this.players.get(client)).sendTournament()
             } catch(e) {}

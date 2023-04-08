@@ -15,6 +15,7 @@ import { UsersService } from 'src/users/services/users/users.service';
     signOptions: { expiresIn: '3600s' },
   })],
   controllers: [TournamentController],
-  providers: [TournamentService, UsersService]
+  providers: [TournamentService, UsersService],
+  exports: [TournamentService]
 })
 export class TournamentModule {}
