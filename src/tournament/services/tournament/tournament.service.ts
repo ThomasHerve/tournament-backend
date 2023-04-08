@@ -134,15 +134,13 @@ export class TournamentService {
             },
         });
         if(tournament){
-            const newTournament = this.tournamentRepository.create({
-                title: name,
-                description: createTournamentDto.description,
-                icon: createTournamentDto.icon,
-                user: user,
-                entries: []
-            });
-            const tournament = await this.tournamentRepository.save(newTournament);
-            this.userService.addTournament(user, tournament)
+            tournament.title = name
+            tournament.description = createTournamentDto.description,
+            tournament.icon = createTournamentDto.icon,
+            tournament.user = user,
+            tournament.entries = []
+            const newTournament = await this.tournamentRepository.save(tournament);
+            this.userService.addTournament(user, newTournament)
             // Entries
             if(createTournamentDto.entries) {
                 const entry: TournamentEntries = new TournamentEntries();

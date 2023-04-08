@@ -121,9 +121,25 @@ else {
         )
       }
       else {
-        /*
+        
         post('http://localhost:3000/tournament/create' , {
-            title: "fruits",
+            title: "test5",
+            description: "",
+            icon: "",
+            entries: [
+              {
+                name: "pomme",
+                link: "pomme"
+              },
+              {
+                name: "banane",
+                link: "banane"
+              },
+            ]
+          }, token).then((r)=>{
+            r = JSON.parse(r)
+            post(`http://localhost:3000/tournament/${r.id}/update` , {
+            title: "test6",
             description: "",
             icon: "",
             entries: [
@@ -137,9 +153,11 @@ else {
               },
             ]
           }, token).then(
-            console.log
-          )*/
-          get('http://localhost:3000/tournament/all-created', token).then(console.log);
+            ()=>{
+              get('http://localhost:3000/tournament/allcreated', token).then(console.log);
+            }
+          )
+          })
       }
     })
   }}
