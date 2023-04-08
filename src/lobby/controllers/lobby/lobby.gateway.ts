@@ -23,11 +23,11 @@ export class LobbyGateway implements OnGatewayDisconnect {
     @SubscribeMessage('create')
     async create(client: Socket, message) {
         if(message.name === undefined) {
-            throw new HttpException("Need a name", HttpStatus.FORBIDDEN)
+            return "Need a name";
         }
         const name: string = message.name
         if(name.length > 10) {
-            throw new HttpException("Name to long", HttpStatus.FORBIDDEN)
+            return "Name to long";
         }
         this.lobbyService.createLobby(client, name)
     }
@@ -35,18 +35,18 @@ export class LobbyGateway implements OnGatewayDisconnect {
     @SubscribeMessage('join')
     async join(client: Socket, message) {
         if(message.name === undefined) {
-            throw new HttpException("Need a name", HttpStatus.FORBIDDEN)
+            return "Need a name";
         }
         if(message.id === undefined) {
-            throw new HttpException("Need a room id", HttpStatus.FORBIDDEN)
+            return "Need a room id" 
         }
         const name: string = message.name
         if(name.length > 10) {
-            throw new HttpException("Name to long", HttpStatus.FORBIDDEN)
+            return "Name to long";
         }
         const id: string = message.id
         if(id.length !== 6) {
-            throw new HttpException("Invalid ID", HttpStatus.FORBIDDEN)
+            return "Invalid ID";
         }
         this.lobbyService.joinLobby(id, client, name);
     }
@@ -58,17 +58,23 @@ export class LobbyGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage('launch')
     async launch(client: Socket, message) {
-        if(message.id === undefined) {
-            throw new HttpException("Need a room id", HttpStatus.FORBIDDEN)
+        this.lobbyService.launchGame(client)
+    }
+
+    @SubscribeMessage('setOptions')
+    async setOptions(client: Socket, message) {
+        this.lobbyService.setOptions(client, message);
+    }
+
+    @SubscribeMessage('changeName')
+    async changeName(client: Socket, message) {
+        if(!message) {
+            return "no data provided";
         }
-        if(message.password === undefined) {
-            throw new HttpException("Need a password", HttpStatus.FORBIDDEN)
+        if(!message.name) {
+            return "no name provided";
         }
-        const id: string = message.id
-        if(id.length !== 6) {
-            throw new HttpException("Invalid ID", HttpStatus.FORBIDDEN)
-        }
-        this.lobbyService.launchGame(id, message.password)
+        this.lobbyService.changeName(client, message.name);
     }
 
   }

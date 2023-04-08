@@ -9,7 +9,7 @@ export class LobbyService {
 
     createLobby(client: Socket, name: string) {
         if(this.players.has(client)) {
-            throw new HttpException("Already in a lobby", HttpStatus.FORBIDDEN)
+            return
         }
         let id: string = this.generateID();
         while(this.lobbies.has(id)){
@@ -25,7 +25,7 @@ export class LobbyService {
 
     joinLobby(id: string, client: Socket, name: string) {
         if(this.players.has(client)) {
-            throw new HttpException("Already in a lobby", HttpStatus.FORBIDDEN)
+            return
         }
         this.players.set(client, id);
         if(this.lobbies.has(id)){
@@ -34,6 +34,7 @@ export class LobbyService {
             this.lobbies.get(id).sendPlayers();
             client.emit('join', {
                 "id": id,
+                "tournament_id": this.lobbies.get(id).tournament_id
             });
         }
         throw new HttpException("Lobby doesn't exist", HttpStatus.FORBIDDEN)
@@ -61,7 +62,7 @@ export class LobbyService {
                 } else {
                     // Check if leaver is owner
                     if(this.lobbies.get(id).players[0].Socket === client) {
-                        this.lobbies.get(id).sendPassword(this.generateID());
+                        this.lobbies.get(id).sendOwner();
                     }
                     // Broadcast client
                     this.lobbies.get(id).sendPlayers();
@@ -73,11 +74,13 @@ export class LobbyService {
         throw new HttpException("Lobby doesn't exist", HttpStatus.FORBIDDEN)
     }
 
-    launchGame(id, password: string) {
+    launchGame(client: Socket) {
         // Check password
-        if(password !== this.lobbies.get(id).password) {
-            throw new HttpException("Not lobby owner", HttpStatus.FORBIDDEN) 
+        if(this.lobbies.get(this.players.get(client)).owner.Socket !== client) {
+            return 
         }
+
+        const id = this.players.get(client);
 
         // TODO 
         // Create game in database with all players data
@@ -98,6 +101,23 @@ export class LobbyService {
     destroyLobby(id) {
         this.lobbies.delete(id);
     }
+
+    changeName(client: Socket, name: string) {
+        if(this.players.has(client)) {
+            this.lobbies.get(this.players.get(client)).changeName(client, name);
+        }
+    }
+
+    setOptions(client: Socket, options) {
+        // options.tournament -> id
+        if(this.lobbies.get(this.players.get(client)).owner.Socket === client) {
+            try  {
+                this.lobbies.get(this.players.get(client)).tournament_id = options.tournament.id;
+                this.lobbies.get(this.players.get(client)).sendTournament()
+            } catch(e) {}
+        }
+    }
+
 
     generateID(): string {
         let outString: string = '';
@@ -120,10 +140,12 @@ class Player {
 }
 
 class Lobby {
-    password: string;
+    owner: Player;
     players: Player[]
+    tournament_id: number
 
     constructor(owner: Player) {
+        this.owner = owner;
         this.players = [owner]
     };
 
@@ -139,11 +161,25 @@ class Lobby {
         })
     }
 
-    sendPassword(newPassword: string) {
-        this.password = newPassword;
-        this.players[0].Socket.send('password', {
-            "password": newPassword
+    changeName(socket: Socket, name: string) {
+        this.players.forEach((player)=>{
+            if(player.Socket === socket) {
+                player.name = name;
+            }
         })
+        this.sendPlayers();
+    }
+
+    sendTournament() {
+        this.players.forEach((player)=>{
+            player.Socket.send('tournament', {
+                tournament_id: this.tournament_id
+            })
+        })
+    }
+
+    sendOwner() {
+        this.players[0].Socket.send('owner', {})
     }
 
     sendStart() {

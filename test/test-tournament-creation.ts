@@ -123,7 +123,7 @@ else {
       else {
         
         post('http://localhost:3000/tournament/create' , {
-            title: "test5",
+            title: "test7",
             description: "",
             icon: "",
             entries: [
@@ -139,17 +139,13 @@ else {
           }, token).then((r)=>{
             r = JSON.parse(r)
             post(`http://localhost:3000/tournament/${r.id}/update` , {
-            title: "test6",
+            title: "test8",
             description: "",
             icon: "",
             entries: [
               {
-                name: "pomme",
-                link: "pomme"
-              },
-              {
-                name: "banane",
-                link: "banane"
+                name: "test",
+                link: "test"
               },
             ]
           }, token).then(
