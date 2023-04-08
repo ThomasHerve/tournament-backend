@@ -14,14 +14,14 @@ export class TournamentController {
       return this.tournamentService.getAllTournaments();
     }
 
-    @Public()
-    @Get(':id')
-    getTournament(@Param('id', ParseIntPipe) id: number) {
-      return this.tournamentService.getTournament(id);
+    @Get('allcreated')
+    getTournaments(@Request() req) {
+      return this.tournamentService.getTournaments(req.user.username);
     }
 
     @Public()
     @Get('all/:filter')
+    @UsePipes(ValidationPipe)
     getAllTournamentsFiltered(@Param('filter') filter: string) {
       return this.tournamentService.getAllTournamentsFiltered(filter);
     }
@@ -34,16 +34,21 @@ export class TournamentController {
     }
 
     // With auth
-    @Get('all-created')
-    getTournaments(@Request() req) {
-      return this.tournamentService.getTournaments(req.user.username);
-    }
-
     @Post('create')
     @UsePipes(ValidationPipe)
     async createTournament(@Body() createTournamentDto: CreateTournamentDto, @Request() req) {
       try {
         return this.tournamentService.createTournament(createTournamentDto, req.user.username);
+      } catch(e) {
+        throw e;
+      }
+    }
+
+    @Post(':id/update')
+    @UsePipes(ValidationPipe)
+    async updateTournament(@Body() createTournamentDto: CreateTournamentDto, @Request() req, @Param('id', ParseIntPipe) id: number) {
+      try {
+        return this.tournamentService.updateTournament(createTournamentDto, req.user.username, id);
       } catch(e) {
         throw e;
       }
@@ -59,14 +64,11 @@ export class TournamentController {
       }
     }
 
-    @Post(':id/update')
+    @Public()
+    @Get(':id')
     @UsePipes(ValidationPipe)
-    async updateTournament(@Body() createTournamentDto: CreateTournamentDto, @Request() req, @Param('id', ParseIntPipe) id: number) {
-      try {
-        return this.tournamentService.updateTournament(createTournamentDto, req.user.username, id);
-      } catch(e) {
-        throw e;
-      }
+    getTournament(@Param('id', ParseIntPipe) id: number) {
+      return this.tournamentService.getTournament(id);
     }
 
     
