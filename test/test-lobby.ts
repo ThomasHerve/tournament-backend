@@ -52,15 +52,29 @@ socketCreator.on("create", (message)=>{
             socketCreator.emit("launch", {})
 
             // Failed lobby set
-            socketCreator.emit("setOptions", {tournament: {id: 4000}})
+            //socketCreator.emit("setOptions", {tournament: {id: 4000}})
 
             // Change owner
             socketJoiner.on("owner", (message)=>{
                 console.log(`Owner`)
                 console.log(message)
+                socketJoiner.emit("setOptions", {tournament: {id: 10}})
+            })
+
+            socketJoiner.on("start", (message)=>{
+                console.log(`Start joiner: ${message}`)
+            })
+
+            socketJoiner.on("tournament", (message)=>{
+                console.log(`Tournament`)
+                console.log(message)
             })
 
             socketCreator.emit("leave")
+
+            socketJoiner.on("error", console.log)
+
+
             
         }
     })

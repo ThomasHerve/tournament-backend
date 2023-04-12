@@ -52,19 +52,14 @@ export class LobbyService {
         if(this.lobbies.has(id)){
             // Check if client is in lobby
             const user = this.lobbies.get(id).players.find((element)=>{if(element.Socket === client) return element})
-            console.log("-------------------------")
-            console.log(user.name)
             if(user !== undefined){
                 // Remove the client from the lobby
-                console.log(this.lobbies.get(id).players.length)
                 this.lobbies.get(id).players = this.lobbies.get(id).players.filter((element)=>{
                     if(element.Socket !== client) {
                         return element;
                     }
                 })
-                console.log(this.lobbies.get(id).players.length)
                 this.players.delete(client);
-                console.log(this.lobbies.get(id).players.length)
                 // Destroy the lobby if nobody is in it
                 if(this.lobbies.get(id).players.length === 0) {                    
                     this.destroyLobby(id);
@@ -198,7 +193,8 @@ class Lobby {
     }
 
     sendOwner() {
-        this.players[0].Socket.emit('owner', {})
+        this.owner = this.players[0]
+        this.owner.Socket.emit('owner', {})
     }
 
     sendStart() {
