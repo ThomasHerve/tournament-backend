@@ -20,7 +20,7 @@ export class LobbyService {
             id = this.generateID();
         }
         this.players.set(client, id);
-        this.lobbies.set(id, new Lobby(new Player(client, name)));  
+        this.lobbies.set(id, new Lobby(new Player(client, name), id));  
         client.emit('create', {
             "id": id,
         });
@@ -37,8 +37,9 @@ export class LobbyService {
             this.lobbies.get(id).sendPlayers();
             client.emit('join', {
                 "id": id,
-                "tournament_id": this.lobbies.get(id).tournament_id
             });
+            console.log(this.lobbies.get(id))
+            return
         }
         throw new HttpException("Lobby doesn't exist", HttpStatus.FORBIDDEN)
     }
@@ -150,11 +151,12 @@ class Player {
 class Lobby {
     owner: Player;
     players: Player[]
-    tournament_id: number
+    tournament_id: string
 
-    constructor(owner: Player) {
+    constructor(owner: Player, tournament_id: string) {
         this.owner = owner;
         this.players = [owner]
+        this.tournament_id = tournament_id
     };
 
     sendPlayers() {
