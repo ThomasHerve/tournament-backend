@@ -50,6 +50,14 @@ socketCreator.on("create", (message)=>{
             // Failed lobby set
             socketCreator.emit("setOptions", {tournament: {id: 4000}})
 
+            // Change owner
+            socketJoiner.on("owner", (message)=>{
+                console.log(`Owner`)
+                console.log(message)
+            })
+
+            socketCreator.emit("leave")
+            
         }
     })
 

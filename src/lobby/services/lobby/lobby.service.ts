@@ -118,18 +118,19 @@ export class LobbyService {
         }
     }
 
-    setOptions(client: Socket, options) {
+    async setOptions(client: Socket, options) {
         // options.tournament -> id
         if(this.lobbies.get(this.players.get(client)).owner.Socket === client) {
             try  {
-                this.tournamentService.getTournament(options.tournament.id);
-                this.lobbies.get(this.players.get(client)).tournament_id = options.tournament.id;
-                this.lobbies.get(this.players.get(client)).sendTournament()
+                await this.tournamentService.getTournament(options.tournament.id);
             } catch(e) {
                 client.emit("error", "The tournament doesn't exist")
+                return
             }
+            this.lobbies.get(this.players.get(client)).tournament_id = options.tournament.id;
+            this.lobbies.get(this.players.get(client)).sendTournament()
         } else {
-            client.emit("error", "You cannot change the rule if you are not the owner opf the lobby")
+            client.emit("error", "You cannot change the rule if you are not the owner of the lobby")
         }
     }
 

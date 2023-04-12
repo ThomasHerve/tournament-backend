@@ -1,4 +1,4 @@
-import { Body, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Body, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/typeorm';
 import { Repository } from 'typeorm';
@@ -64,7 +64,7 @@ export class TournamentService {
             ]
         });
         if(!tournament) {
-            throw new HttpException("Tournament doesn't exist", HttpStatus.NOT_FOUND);
+            throw new NotFoundException();
         }
         return tournament;
     }

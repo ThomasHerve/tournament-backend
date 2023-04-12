@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Request, UsePipes, ValidationPipe, ParseIntPipe, Delete } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, UsePipes, ValidationPipe, ParseIntPipe, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateTournamentDto, DeleteTournamentDto, TournamentEntries } from 'src/tournament/dto/tournament.dtos';
 import { TournamentService } from 'src/tournament/services/tournament/tournament.service';
 import { Public } from 'src/users/services/users/public.decorator';
@@ -16,7 +16,11 @@ export class TournamentController {
 
     @Get('allcreated')
     getTournaments(@Request() req) {
-      return this.tournamentService.getTournaments(req.user.username);
+      try {
+        return this.tournamentService.getTournaments(req.user.username);
+      } catch {
+        throw new HttpException("Tournament doesn't exist", HttpStatus.NOT_FOUND);
+      }
     }
 
     @Public()
