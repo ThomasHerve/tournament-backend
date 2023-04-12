@@ -52,20 +52,25 @@ export class LobbyService {
         if(this.lobbies.has(id)){
             // Check if client is in lobby
             const user = this.lobbies.get(id).players.find((element)=>{if(element.Socket === client) return element})
+            console.log("-------------------------")
+            console.log(user.name)
             if(user !== undefined){
                 // Remove the client from the lobby
+                console.log(this.lobbies.get(id).players.length)
                 this.lobbies.get(id).players = this.lobbies.get(id).players.filter((element)=>{
                     if(element.Socket !== client) {
                         return element;
                     }
                 })
+                console.log(this.lobbies.get(id).players.length)
                 this.players.delete(client);
+                console.log(this.lobbies.get(id).players.length)
                 // Destroy the lobby if nobody is in it
-                if(this.lobbies.get(id).players.length === 0) {
+                if(this.lobbies.get(id).players.length === 0) {                    
                     this.destroyLobby(id);
                 } else {
                     // Check if leaver is owner
-                    if(this.lobbies.get(id).players[0].Socket === client) {
+                    if(this.lobbies.get(id).owner.Socket === client) {
                         this.lobbies.get(id).sendOwner();
                     }
                     // Broadcast client
@@ -73,9 +78,7 @@ export class LobbyService {
                 }
                 return
             }
-            throw new HttpException("Player not in this lobby", HttpStatus.FORBIDDEN)
         }
-        throw new HttpException("Lobby doesn't exist", HttpStatus.FORBIDDEN)
     }
 
     launchGame(client: Socket) {

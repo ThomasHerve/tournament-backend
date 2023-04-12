@@ -30,6 +30,10 @@ let count = 0
 // receive a message from the server
 socketCreator.on("create", (message)=>{
     const socketJoiner = io("ws://localhost:3000");
+    socketJoiner.on("players", (message)=>{
+        console.log(`Players (joiner)`)
+        console.log(message)
+    })
     socketJoiner.emit("join", {name: "joiner", id: message.id})
     socketJoiner.on("join", (message)=>{
         if(count == 0) {
