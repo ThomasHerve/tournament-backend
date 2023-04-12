@@ -20,7 +20,7 @@ export class LobbyService {
             id = this.generateID();
         }
         this.players.set(client, id);
-        this.lobbies.set(id, new Lobby(new Player(client, name), id));  
+        this.lobbies.set(id, new Lobby(new Player(client, name)));  
         client.emit('create', {
             "id": id,
         });
@@ -37,11 +37,11 @@ export class LobbyService {
             this.lobbies.get(id).sendPlayers();
             client.emit('join', {
                 "id": id,
+                "tournament_id": this.lobbies.get(id).tournament_id
             });
-            console.log(this.lobbies.get(id))
             return
         }
-        throw new HttpException("Lobby doesn't exist", HttpStatus.FORBIDDEN)
+        client.emit("error", "lobby doesn't exist")
     }
 
     leavelobby(client: Socket) {
@@ -81,10 +81,12 @@ export class LobbyService {
     launchGame(client: Socket) {
         // Check password
         if(this.lobbies.get(this.players.get(client)).owner.Socket !== client) {
+            client.emit("error", "You are not the owner of the lobby")
             return "not owner"
         }
 
         if(!this.lobbies.get(this.players.get(client)).tournament_id) {
+            client.emit("error", "You need to set a tournament")
             return "no tournaments set"
         }
 
@@ -123,7 +125,11 @@ export class LobbyService {
                 this.tournamentService.getTournament(options.tournament.id);
                 this.lobbies.get(this.players.get(client)).tournament_id = options.tournament.id;
                 this.lobbies.get(this.players.get(client)).sendTournament()
-            } catch(e) {}
+            } catch(e) {
+                client.emit("error", "The tournament doesn't exist")
+            }
+        } else {
+            client.emit("error", "You cannot change the rule if you are not the owner opf the lobby")
         }
     }
 
@@ -153,10 +159,9 @@ class Lobby {
     players: Player[]
     tournament_id: string
 
-    constructor(owner: Player, tournament_id: string) {
+    constructor(owner: Player) {
         this.owner = owner;
         this.players = [owner]
-        this.tournament_id = tournament_id
     };
 
     sendPlayers() {

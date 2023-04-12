@@ -24,13 +24,34 @@ socketCreator.on("players", (message)=>{
     console.log(message)
 })
 
+socketCreator.on("error", console.log);
+
+let count = 0
 // receive a message from the server
 socketCreator.on("create", (message)=>{
     const socketJoiner = io("ws://localhost:3000");
     socketJoiner.emit("join", {name: "joiner", id: message.id})
     socketJoiner.on("join", (message)=>{
-        console.log(`Join`)
-        console.log(message)
+        if(count == 0) {
+            count++
+            console.log(`Join`)
+            console.log(message)
+            socketJoiner.emit("leave")
+            const socketJoiner2 = io("ws://localhost:3000");
+            socketJoiner2.emit("join", {name: "joiner2", id: message.id})
+            socketJoiner.emit("join", {name: "joiner1", id: message.id})
+            socketJoiner2.on("join", (message)=>{
+                socketJoiner2.emit("changeName", {name: "changedJoiner2"})
+            })
+
+            // Failed launch, no tournament set
+            socketCreator.emit("launch", {})
+
+            // Failed lobby set
+            socketCreator.emit("setOptions", {tournament: {id: 4000}})
+
+        }
     })
+
 });
 
