@@ -49,7 +49,7 @@ socketCreator.on("create", (message)=>{
             })
 
             // Failed launch, no tournament set
-            socketCreator.emit("launch", {})
+            socketCreator.emit("launch")
 
             // Failed lobby set
             //socketCreator.emit("setOptions", {tournament: {id: 4000}})
@@ -62,12 +62,14 @@ socketCreator.on("create", (message)=>{
             })
 
             socketJoiner.on("start", (message)=>{
-                console.log(`Start joiner: ${message}`)
+                console.log(`Start joiner`)
+                console.log(message)
             })
 
             socketJoiner.on("tournament", (message)=>{
                 console.log(`Tournament`)
                 console.log(message)
+                socketJoiner.emit("launch")
             })
 
             socketCreator.emit("leave")
