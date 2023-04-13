@@ -38,8 +38,15 @@ export class LobbyService {
             this.lobbies.get(id).sendPlayers();
             client.emit('join', {
                 "id": id,
-                "tournament_id": this.lobbies.get(id).tournament_id
+                "tournament_id": this.lobbies.get(id).tournament_id,
+                "started": this.lobbies.get(id).started
             });
+            if(this.lobbies.get(id).started) {
+                const lobby = this.lobbies.get(id)
+                lobby.sendTournamentToOneClient(client);
+                lobby.sendRound(client);
+                lobby.sendVote(client);
+            }
             return
         }
         client.emit("error", "lobby doesn't exist")
@@ -121,6 +128,10 @@ export class LobbyService {
     async setOptions(client: Socket, options) {
         // options.tournament -> id
         if(this.lobbies.get(this.players.get(client)).owner.Socket === client) {
+            if(this.lobbies.get(this.players.get(client)).started) {
+                client.emit("error", "The tournament already started")
+                return "Already started"
+            }
             let tournament: Tournament
             try  {
                 tournament = await this.tournamentService.getTournament(options.tournament.id);
@@ -146,6 +157,40 @@ export class LobbyService {
         }
         return outString;
       }
+
+
+    // Game part
+    vote(client: Socket, message) {
+        if(message === undefined) {
+            client.emit("error", "no data send");
+            return
+        }
+        if(message.left === undefined) {
+            client.emit("error", "need a 'left' field on vote");
+            return
+        }
+        if(this.players.has(client)) {
+            if(this.lobbies.get(this.players.get(client)).started) {
+                this.lobbies.get(this.players.get(client)).vote(client, message.left);
+            } else {
+                client.emit("error", "game didn't started");
+            }
+        }
+    }
+
+    // If the owner send skip
+    skip(client: Socket) {
+        if(this.lobbies.get(this.players.get(client)).owner.Socket === client) {
+            if(this.lobbies.get(this.players.get(client)).started) {
+                this.lobbies.get(this.players.get(client)).skip();
+            } else {
+                client.emit("error", "game didn't started");
+            }
+        } else {
+            client.emit("error", "you are not the owner");
+        }
+    }
+    
 }
 
 class Player {
@@ -178,7 +223,7 @@ class Lobby {
     sendPlayers() {
         const players = []
         this.players.forEach((player)=>{
-            players.push({name: player.name, hasVoted: player.hasVoted})
+            players.push({name: player.name})
         })
         this.players.forEach((player)=>{
             player.Socket.emit('players' ,{
@@ -198,9 +243,13 @@ class Lobby {
 
     sendTournament() {
         this.players.forEach((player)=>{
-            player.Socket.emit('tournament', {
-                tournament_id: this.tournament_id
-            })
+            this.sendTournamentToOneClient(player.Socket);
+        })
+    }
+
+    sendTournamentToOneClient(client: Socket) {
+        client.emit('tournament', {
+            tournament_id: this.tournament_id
         })
     }
 
@@ -221,9 +270,98 @@ class Lobby {
     }
 
     // Game
+    leftVote: number = 0;
+    rightVote: number = 0;
+    ownerVoteLeft: boolean = true;
+    currentNode: TournamentNode;
 
+    // Send entries data to all player
     nextTurn() {
+        this.leftVote = 0;
+        this.rightVote = 0;
+        this.ownerVoteLeft = true;
+        // Check if the game is over
+        if(this.tree.getIsOver()){
+            this.end();
+        }
+        this.currentNode = this.tree.getNextNode();
+        this.players.forEach((player)=>{
+            this.sendRound(player.Socket)
+        })
+    }
 
+    sendRound(client: Socket) {
+        client.emit('round', {
+            left: {
+                name: this.currentNode.left.entry.name,
+                link: this.currentNode.left.entry.link
+            },
+            right: {
+                name: this.currentNode.right.entry.name,
+                link: this.currentNode.right.entry.link
+            }
+        })
+    }
+
+    end() {
+        this.players.forEach((player)=>{
+            player.Socket.emit('end')
+        })
+        // RESET
+        this.started = false;
+    }
+
+    // A client vote
+    vote(client: Socket, left: boolean) {
+        const player: Player = this.players.find((element)=>element.Socket === client);
+        if(player && !player.hasVoted) {
+            player.hasVoted = true;
+            if(left) {
+                this.leftVote++;
+            }
+            else {
+                this.rightVote++;
+                // To avoir tie, we track the owner vote 
+                if(this.owner === player) {
+                    this.ownerVoteLeft = false;
+                }
+            }
+            // Check if everyone voted
+            if(this.leftVote + this.rightVote === this.players.length) {
+                this.skip();
+            }
+
+            // Send data
+            this.players.forEach((player)=>{
+                this.sendVote(player.Socket);
+            })
+        }
+    }
+
+    sendVote(client: Socket) {
+        client.emit('vote', {
+            left: this.leftVote,
+            right: this.rightVote
+        })
+    }
+
+    // Skip if owner send skip
+    skip() {
+        if(this.leftVote > this.rightVote) {
+            this.currentNode.entry = this.currentNode.left.entry;
+        }
+        else if(this.leftVote < this.rightVote) {
+            this.currentNode.entry = this.currentNode.right.entry;
+        }
+        else {
+            // Tie
+            if(this.ownerVoteLeft) {
+                this.currentNode.entry = this.currentNode.left.entry;
+            } else {
+                this.currentNode.entry = this.currentNode.right.entry;
+            }
+        }
+        this.nextTurn();
     }
 
 }
@@ -330,6 +468,10 @@ class TournamentTree {
                 return nodes[i];
             }
         }
+    }
+
+    getIsOver(): boolean {
+        return this.head.entry !== undefined;
     }
 
     // Test
