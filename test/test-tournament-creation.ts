@@ -135,24 +135,21 @@ else {
                 name: "banane",
                 link: "banane"
               },
-            ]
-          }, token).then((r)=>{
-            r = JSON.parse(r)
-            post(`http://localhost:3000/tournament/${r.id}/update` , {
-            title: "test8",
-            description: "",
-            icon: "",
-            entries: [
               {
-                name: "test",
-                link: "test"
+                name: "fraise",
+                link: "fraise"
+              },
+              {
+                name: "framboise",
+                link: "framboise"
+              },
+              {
+                name: "poire",
+                link: "poire"
               },
             ]
-          }, token).then(
-            ()=>{
+          }, token).then((r)=>{
               get('http://localhost:3000/tournament/allcreated', token).then(console.log);
-            }
-          )
           })
       }
     })

@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { TournamentService } from 'src/tournament/services/tournament/tournament.service';
+import { Tournament, TournamentEntry } from 'src/typeorm/tournament.entity';
 
 @Injectable()
 export class LobbyService {
@@ -88,11 +89,12 @@ export class LobbyService {
             return "no tournaments set"
         }
 
-        const id = this.players.get(client);
+        if(this.lobbies.get(this.players.get(client)).started) {
+            client.emit("error", "The tournament already started")
+            return "Already started"
+        }
 
-        // TODO 
-        // Create game in database with all players data
-        
+        const id = this.players.get(client);        
 
         // Notify all clients
         this.lobbies.get(id).sendStart();
@@ -119,13 +121,16 @@ export class LobbyService {
     async setOptions(client: Socket, options) {
         // options.tournament -> id
         if(this.lobbies.get(this.players.get(client)).owner.Socket === client) {
+            let tournament: Tournament
             try  {
-                await this.tournamentService.getTournament(options.tournament.id);
+                tournament = await this.tournamentService.getTournament(options.tournament.id);
             } catch(e) {
                 client.emit("error", "The tournament doesn't exist")
                 return
             }
             this.lobbies.get(this.players.get(client)).tournament_id = options.tournament.id;
+            this.lobbies.get(this.players.get(client)).tournament = tournament
+            this.lobbies.get(this.players.get(client)).size = tournament.entries.length
             this.lobbies.get(this.players.get(client)).sendTournament()
         } else {
             client.emit("error", "You cannot change the rule if you are not the owner of the lobby")
@@ -146,10 +151,12 @@ export class LobbyService {
 class Player {
     Socket: Socket
     name: string
+    hasVoted: boolean
 
     constructor(Socket, name){
         this.Socket = Socket
         this.name = name
+        this.hasVoted = false
     }
 }
 
@@ -157,20 +164,25 @@ class Lobby {
     owner: Player;
     players: Player[]
     tournament_id: string
+    tournament: Tournament
+    size: number
+    tree: TournamentTree
+    started: boolean
 
     constructor(owner: Player) {
         this.owner = owner;
         this.players = [owner]
+        this.started = false;
     };
 
     sendPlayers() {
-        const names = []
+        const players = []
         this.players.forEach((player)=>{
-            names.push(player.name)
+            players.push({name: player.name, hasVoted: player.hasVoted})
         })
         this.players.forEach((player)=>{
             player.Socket.emit('players' ,{
-                players: names
+                players: players
             })
         })
     }
@@ -203,6 +215,100 @@ class Lobby {
                 start: true
             })
         })
+        this.started = true;
+        this.tree = new TournamentTree(this.tournament, this.size);
+        this.nextTurn();
     }
 
+    // Game
+
+    nextTurn() {
+
+    }
+
+}
+
+class TournamentNode {
+    entry: TournamentEntry
+    left: TournamentNode
+    right: TournamentNode
+    isFictive: boolean = false;
+}
+
+class TournamentTree {
+    
+    depth: number;
+    size: number;
+    head: TournamentNode;
+
+    entries: TournamentEntry[]
+    counter: number;
+    
+    constructor(tournament: Tournament, size: number) {
+        this.depth = this.getTreeDepth(size);    
+        this.size = size;
+        this.head = new TournamentNode();
+
+        this.counter = 0;
+        this.entries = this.shuffle(tournament.entries);
+
+        this.createTree(this.head, 1);
+        this.printTree(this.head, 1);
+    }
+
+    createTree(node: TournamentNode, currentDepth: number) {
+        if(currentDepth === this.depth) {
+            console.log(this.counter + " " + this.size)
+            if(this.counter >= this.size) {
+                // Fictive node
+               console.log("OK")
+                node.isFictive = true;
+            } else {
+                node.entry = this.entries[this.counter];
+            }
+            this.counter++
+            return
+        }
+        
+        // Not a leaf
+        node.left = new TournamentNode();
+        node.right = new TournamentNode();
+        this.createTree(node.left, currentDepth+1);
+        this.createTree(node.right, currentDepth+1);
+    }
+
+    getTreeDepth(n: number): number {
+        let v: number = 1
+        let c = 1;
+        while(v < n) {
+            v *= 2
+            c++
+        } 
+        return c
+    }
+
+    shuffle(array) {
+        const shuffledArray = array.sort((a, b) => 0.5 - Math.random());
+        return shuffledArray;
+    }
+
+    // Test
+
+    printTree(node: TournamentNode, currentDepth: number) {
+        let stars = ""
+        for(let i = 0; i < currentDepth; i++) {
+            stars += "*";
+        }
+        if(node.left && node.right) {
+            console.log(stars)
+            this.printTree(node.left, currentDepth+1);
+            this.printTree(node.right, currentDepth+1);
+        } else {
+            if(node.isFictive) {
+                console.log(stars + " fictive");
+            } else {
+                console.log(stars + " " + node.entry.name);
+            }
+        }
+    }
 }
