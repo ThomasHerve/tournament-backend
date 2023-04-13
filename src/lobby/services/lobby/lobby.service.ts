@@ -252,16 +252,27 @@ class TournamentTree {
         this.counter = 0;
         this.entries = this.shuffle(tournament.entries);
 
+        /* tests
         this.createTree(this.head, 1);
         this.printTree(this.head, 1);
+        let node = this.getNextNode()
+        node.entry = node.left.entry
+        node = this.getNextNode()
+        node.entry = node.left.entry
+        node = this.getNextNode()
+        node.entry = node.left.entry
+        node = this.getNextNode()
+        node.entry = node.left.entry
+        this.printTree(this.head, 1)
+        */
     }
+
+    // Tree creation
 
     createTree(node: TournamentNode, currentDepth: number) {
         if(currentDepth === this.depth) {
-            console.log(this.counter + " " + this.size)
             if(this.counter >= this.size) {
                 // Fictive node
-               console.log("OK")
                 node.isFictive = true;
             } else {
                 node.entry = this.entries[this.counter];
@@ -275,6 +286,12 @@ class TournamentTree {
         node.right = new TournamentNode();
         this.createTree(node.left, currentDepth+1);
         this.createTree(node.right, currentDepth+1);
+        if(node.entry === undefined && node.left.isFictive && node.right.isFictive) {
+            node.isFictive = true;
+        }
+        else if(node.entry === undefined && node.left.entry !== undefined && node.right.isFictive) {
+            node.entry = node.left.entry;
+        }
     }
 
     getTreeDepth(n: number): number {
@@ -292,15 +309,41 @@ class TournamentTree {
         return shuffledArray;
     }
 
-    // Test
+    // Tree execution
 
+    getNextNode(): TournamentNode {
+        let nodes: TournamentNode[] = []; 
+        let f = new Queue();
+        f.push(this.head);
+        while(!f.empty()) {
+            let node: TournamentNode = f.shift();
+            nodes.push(node);
+            if(node.right) {
+                f.push(node.right)
+                f.push(node.left)
+            }
+        }
+        nodes.reverse();
+
+        for(let i = 0; i < nodes.length; i++) {
+            if(nodes[i].entry === undefined  && !nodes[i].isFictive && (nodes[i].left.entry !== undefined || nodes[i].left.isFictive )&& (nodes[i].right.entry || nodes[i].right.isFictive)!== undefined) {
+                return nodes[i];
+            }
+        }
+    }
+
+    // Test
     printTree(node: TournamentNode, currentDepth: number) {
         let stars = ""
         for(let i = 0; i < currentDepth; i++) {
             stars += "*";
         }
         if(node.left && node.right) {
-            console.log(stars)
+            if(node.entry) {
+                console.log(stars + node.entry.name)
+            } else {
+                console.log(stars)
+            }
             this.printTree(node.left, currentDepth+1);
             this.printTree(node.right, currentDepth+1);
         } else {
@@ -312,3 +355,24 @@ class TournamentTree {
         }
     }
 }
+
+class Queue {
+
+    elements    
+
+    constructor() {
+      // Initializing the queue with given arguments 
+      this.elements = [];
+    }
+    // Proxying the push/shift methods
+    push(...args) {
+      return this.elements.push(...args);
+    }
+    shift(...args) {
+      return this.elements.shift(...args);
+    }
+
+    empty(): boolean {
+        return this.elements.length === 0;
+    }
+  }
