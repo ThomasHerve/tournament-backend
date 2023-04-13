@@ -255,7 +255,7 @@ class Lobby {
 
     sendOwner() {
         this.owner = this.players[0]
-        this.owner.Socket.emit('owner', {})
+        this.owner.Socket.emit('owner')
     }
 
     sendStart() {
@@ -305,7 +305,10 @@ class Lobby {
 
     end() {
         this.players.forEach((player)=>{
-            player.Socket.emit('end')
+            player.Socket.emit('end', {
+                name: this.currentNode.entry.name,
+                link: this.currentNode.entry.link
+            })
         })
         // RESET
         this.started = false;

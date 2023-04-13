@@ -77,5 +77,15 @@ export class LobbyGateway implements OnGatewayDisconnect {
         this.lobbyService.changeName(client, message.name);
     }
 
+    @SubscribeMessage('vote')
+    async vote(client: Socket, message) {
+        this.lobbyService.vote(client, message.name);
+    }
+
+    @SubscribeMessage('skip')
+    async skip(client: Socket) {
+        this.lobbyService.skip(client);
+    }
+
   }
   
