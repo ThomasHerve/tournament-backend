@@ -25,6 +25,7 @@ export class LobbyService {
         client.emit('create', {
             "id": id,
         });
+        this.lobbies.get(id).sendPlayers();
     }
 
     joinLobby(id: string, client: Socket, name: string) {
