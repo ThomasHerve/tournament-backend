@@ -228,7 +228,8 @@ class Lobby {
         })
         this.players.forEach((player)=>{
             player.Socket.emit('players' ,{
-                players: players
+                players: players,
+                owner: this.owner.name
             })
         })
     }
