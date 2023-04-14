@@ -259,9 +259,14 @@ class Lobby {
     }
 
     sendStart() {
+        const players = []
+        this.players.forEach((player)=>{
+            players.push({name: player.name})
+        })
         this.players.forEach((player)=>{
             player.Socket.emit('start', {
-                start: true
+                start: true,
+                players: players
             })
         })
         this.started = true;
