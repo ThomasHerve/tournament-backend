@@ -224,7 +224,11 @@ class Lobby {
     sendPlayers() {
         const players = []
         this.players.forEach((player)=>{
-            players.push({name: player.name})
+            let isOwner = false;
+            if(player === this.owner) {
+                isOwner = true
+            }
+            players.push({name: player.name, isOwner: isOwner})
         })
         this.players.forEach((player)=>{
             player.Socket.emit('players' ,{
