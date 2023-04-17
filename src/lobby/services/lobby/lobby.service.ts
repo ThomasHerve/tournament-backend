@@ -343,6 +343,12 @@ class Lobby {
             if(this.leftVote + this.rightVote === this.players.length) {
                 this.skip();
             }
+            this.players.forEach((player)=>{
+                player.Socket.emit('voteNumber', {
+                    current: this.leftVote + this.rightVote,
+                    total: this.players.length
+                })
+            })
         }
     }
 
