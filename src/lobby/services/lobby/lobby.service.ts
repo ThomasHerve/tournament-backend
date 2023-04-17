@@ -46,7 +46,6 @@ export class LobbyService {
                 const lobby = this.lobbies.get(id)
                 lobby.sendTournamentToOneClient(client);
                 lobby.sendRound(client);
-                lobby.sendVote(client);
             }
             return
         }
@@ -339,11 +338,6 @@ class Lobby {
             if(this.leftVote + this.rightVote === this.players.length) {
                 this.skip();
             }
-
-            // Send data
-            this.players.forEach((player)=>{
-                this.sendVote(player.Socket);
-            })
         }
     }
 
@@ -370,6 +364,10 @@ class Lobby {
                 this.currentNode.entry = this.currentNode.right.entry;
             }
         }
+        // Send data
+        this.players.forEach((player)=>{
+            this.sendVote(player.Socket);
+        })
         this.nextTurn();
     }
 
