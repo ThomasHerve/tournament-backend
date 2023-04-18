@@ -61,6 +61,8 @@ export class LobbyService {
             // Check if client is in lobby
             const user = this.lobbies.get(id).players.find((element)=>{if(element.Socket === client) return element})
             if(user !== undefined){
+                // Remove player from game
+                this.lobbies.get(id).removePlayer(user);
                 // Remove the client from the lobby
                 this.lobbies.get(id).players = this.lobbies.get(id).players.filter((element)=>{
                     if(element.Socket !== client) {
@@ -198,6 +200,7 @@ class Player {
     Socket: Socket
     name: string
     hasVoted: boolean
+    vote: number
 
     constructor(Socket, name){
         this.Socket = Socket
@@ -280,6 +283,18 @@ class Lobby {
         this.nextTurn();
     }
 
+    removePlayer(player: Player) {
+        if(this.started) {
+            if(player.hasVoted){
+                if(player.vote === 1) {
+                    this.leftVote--;
+                } else if(player.vote === -1){
+                    this.rightVote--;
+                }
+            }
+        }
+    }
+
     // Game
     leftVote: number = 0;
     rightVote: number = 0;
@@ -298,6 +313,7 @@ class Lobby {
         this.currentNode = this.tree.getNextNode();
         this.players.forEach((player)=>{
             player.hasVoted = false;
+            player.vote = 0;
             this.sendRound(player.Socket)
         })
     }
@@ -333,9 +349,11 @@ class Lobby {
             player.hasVoted = true;
             if(left) {
                 this.leftVote++;
+                player.vote=1;
             }
             else {
                 this.rightVote++;
+                player.vote=-1;
                 // To avoir tie, we track the owner vote 
                 if(this.owner === player) {
                     this.ownerVoteLeft = false;
