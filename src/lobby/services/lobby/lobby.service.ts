@@ -367,20 +367,23 @@ class Lobby {
         }
     }
 
-    sendVote(client: Socket) {
+    sendVote(client: Socket, res: string) {
         client.emit('vote', {
             left: this.leftVote,
-            right: this.rightVote
+            right: this.rightVote,
+            result: res
         })
     }
 
     // Skip if owner send skip
     skip() {
+        let res = "left"
         if(this.leftVote > this.rightVote) {
             this.currentNode.entry = this.currentNode.left.entry;
         }
         else if(this.leftVote < this.rightVote) {
             this.currentNode.entry = this.currentNode.right.entry;
+            res = "right"
         }
         else {
             // Tie
@@ -388,11 +391,12 @@ class Lobby {
                 this.currentNode.entry = this.currentNode.left.entry;
             } else {
                 this.currentNode.entry = this.currentNode.right.entry;
+                res = "right"
             }
         }
         // Send data
         this.players.forEach((player)=>{
-            this.sendVote(player.Socket);
+            this.sendVote(player.Socket, res);
         })
         this.nextTurn();
     }
