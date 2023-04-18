@@ -272,15 +272,37 @@ class Lobby {
         this.players.forEach((player)=>{
             players.push({name: player.name, hasVoted: player.hasVoted})
         })
-        this.players.forEach((player)=>{
-            player.Socket.emit('start', {
-                start: true,
-                players: players
-            })
-        })
+        
         this.started = true;
         this.tree = new TournamentTree(this.tournament, this.size);
-        this.nextTurn();
+        
+        this.leftVote = 0;
+        this.rightVote = 0;
+        this.ownerVoteLeft = true;
+        // Check if the game is over
+        if(this.tree.getIsOver()){
+            this.end();
+        }
+        this.currentNode = this.tree.getNextNode();
+
+        this.players.forEach((player)=>{
+            player.hasVoted = false;
+            player.vote = 0;
+            player.Socket.emit(
+                'round', {
+                    left: {
+                        name: this.currentNode.left.entry.name,
+                        link: this.currentNode.left.entry.link
+                    },
+                    right: {
+                        name: this.currentNode.right.entry.name,
+                        link: this.currentNode.right.entry.link
+                    }
+                }
+            )
+        })
+
+        //this.nextTurn();
     }
 
     removePlayer(player: Player) {
