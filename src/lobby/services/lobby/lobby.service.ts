@@ -289,7 +289,7 @@ class Lobby {
             player.hasVoted = false;
             player.vote = 0;
             player.Socket.emit(
-                'round', {
+                'start', {
                     left: {
                         name: this.currentNode.left.entry.name,
                         link: this.currentNode.left.entry.link
