@@ -111,8 +111,9 @@ export class LobbyService {
             this.players.delete(player.Socket);
         });
 
-        // Remove the lobby
-        this.destroyLobby(id);
+        // Re-send players
+        this.lobbies.get(id).sendPlayers();
+
     }
 
     destroyLobby(id) {
@@ -266,7 +267,7 @@ class Lobby {
     sendStart() {
         const players = []
         this.players.forEach((player)=>{
-            players.push({name: player.name})
+            players.push({name: player.name, hasVoted: player.hasVoted})
         })
         this.players.forEach((player)=>{
             player.Socket.emit('start', {
@@ -296,6 +297,7 @@ class Lobby {
         }
         this.currentNode = this.tree.getNextNode();
         this.players.forEach((player)=>{
+            player.hasVoted = false;
             this.sendRound(player.Socket)
         })
     }
@@ -343,12 +345,7 @@ class Lobby {
             if(this.leftVote + this.rightVote === this.players.length) {
                 this.skip();
             }
-            this.players.forEach((player)=>{
-                player.Socket.emit('voteNumber', {
-                    current: this.leftVote + this.rightVote,
-                    total: this.players.length
-                })
-            })
+            this.sendPlayers();
         }
     }
 
