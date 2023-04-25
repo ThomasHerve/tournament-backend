@@ -23,5 +23,16 @@ socketCreator.on("start", (message)=>{
     console.log(message)
     socketCreator.emit('vote', {left: true})
     socketCreator.emit('vote', {left: true})
+    socketJoiner.emit('vote', {left: true})
 })
 
+socketCreator.on('round', (r)=>{
+    console.log(r)
+    socketCreator.emit('vote', {left: true})
+    socketJoiner.emit('vote', {left: true})
+})
+
+socketCreator.on('end', (r)=>{
+    console.log("WINNER")
+    console.log(r)
+})

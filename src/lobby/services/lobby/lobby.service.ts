@@ -279,10 +279,7 @@ class Lobby {
         this.leftVote = 0;
         this.rightVote = 0;
         this.ownerVoteLeft = true;
-        // Check if the game is over
-        if(this.tree.getIsOver()){
-            this.end();
-        }
+        
         this.currentNode = this.tree.getNextNode();
 
         this.players.forEach((player)=>{
@@ -331,6 +328,7 @@ class Lobby {
         // Check if the game is over
         if(this.tree.getIsOver()){
             this.end();
+            return
         }
         this.currentNode = this.tree.getNextNode();
         this.players.forEach((player)=>{
