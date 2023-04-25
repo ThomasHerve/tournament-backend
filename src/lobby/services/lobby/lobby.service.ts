@@ -386,6 +386,8 @@ class Lobby {
                 this.skip();
             }
             this.sendPlayers();
+        } else if(player && player.hasVoted) {
+            client.emit("error", "You already voted");
         }
     }
 

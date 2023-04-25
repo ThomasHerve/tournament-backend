@@ -22,5 +22,6 @@ socketJoiner.on("error", console.log)
 socketCreator.on("start", (message)=>{
     console.log(message)
     socketCreator.emit('vote', {left: true})
+    socketCreator.emit('vote', {left: true})
 })
 
