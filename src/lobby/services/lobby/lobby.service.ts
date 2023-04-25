@@ -109,9 +109,9 @@ export class LobbyService {
         this.lobbies.get(id).sendStart();
 
         // Remove clients from Map
-        this.lobbies.get(id).players.forEach((player: Player)=>{
+        /*this.lobbies.get(id).players.forEach((player: Player)=>{
             this.players.delete(player.Socket);
-        });
+        });*/
 
         // Re-send players
         this.lobbies.get(id).sendPlayers();
@@ -448,9 +448,10 @@ class TournamentTree {
 
         this.counter = 0;
         this.entries = this.shuffle(tournament.entries);
+        this.createTree(this.head, 1);
 
         /* tests
-        this.createTree(this.head, 1);
+        
         this.printTree(this.head, 1);
         let node = this.getNextNode()
         node.entry = node.left.entry
@@ -521,7 +522,6 @@ class TournamentTree {
             }
         }
         nodes.reverse();
-
         for(let i = 0; i < nodes.length; i++) {
             if(nodes[i].entry === undefined  && !nodes[i].isFictive && (nodes[i].left.entry !== undefined || nodes[i].left.isFictive )&& (nodes[i].right.entry || nodes[i].right.isFictive)!== undefined) {
                 return nodes[i];

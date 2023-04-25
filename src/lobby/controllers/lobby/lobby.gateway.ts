@@ -17,6 +17,7 @@ export class LobbyGateway implements OnGatewayDisconnect {
     constructor(private lobbyService: LobbyService){}
 
     async handleDisconnect(client: Socket) {
+        console.log("disconnected...")
         this.lobbyService.leavelobby(client);
     }
 
@@ -79,7 +80,7 @@ export class LobbyGateway implements OnGatewayDisconnect {
 
     @SubscribeMessage('vote')
     async vote(client: Socket, message) {
-        this.lobbyService.vote(client, message.name);
+        this.lobbyService.vote(client, message);
     }
 
     @SubscribeMessage('skip')
