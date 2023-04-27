@@ -103,11 +103,6 @@ export class LobbyService {
             return "Already started"
         }
 
-        if(this.lobbies.get(this.players.get(client)).players.length < 2) {
-            client.emit("error", "Not enought players")
-            return "Not enought players"
-        }
-
         const id = this.players.get(client);        
 
         // Notify all clients
