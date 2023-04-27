@@ -297,6 +297,7 @@ class Lobby {
                     }
                 }
             )
+            this.sendRound(player.Socket);
         })
 
         //this.nextTurn();
