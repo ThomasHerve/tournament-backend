@@ -48,6 +48,8 @@ export class LobbyService {
                 lobby.sendRound(client);
             }
             return
+        } else {
+            client.emit('join', {});
         }
         client.emit("error", "lobby doesn't exist")
     }
