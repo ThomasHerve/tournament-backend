@@ -35,8 +35,8 @@ export class LobbyService {
             console.log("Player already joined a lobby")
             return
         }
-        this.players.set(client, id);
         if(this.lobbies.has(id)){
+            this.players.set(client, id);
             console.log(`Player joined ${id}`)
             this.lobbies.get(id).players.push(new Player(client, name));
             // Broadcast client

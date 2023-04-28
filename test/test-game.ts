@@ -1,7 +1,7 @@
 const io = require("socket.io-client");
 
-const socketCreator = io("ws://90.66.62.181:3000");
-const socketJoiner = io("ws://90.66.62.181:3000");
+const socketCreator = io("ws://localhost:3000");
+const socketJoiner = io("ws://localhost:3000");
 
 socketCreator.emit("create", {name: "test"});
 socketCreator.on("create", (message)=>{
