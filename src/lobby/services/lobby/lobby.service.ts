@@ -162,7 +162,7 @@ export class LobbyService {
 
     generateID(): string {
         let outString: string = '';
-        let inOptions: string = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let inOptions: string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         for (let i = 0; i < 6; i++) {
           outString += inOptions.charAt(Math.floor(Math.random() * inOptions.length));
         }
