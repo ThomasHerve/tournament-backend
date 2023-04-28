@@ -26,6 +26,7 @@ export class LobbyService {
             "id": id,
         });
         this.lobbies.get(id).sendPlayers();
+        console.log("Lobby created: "  + id)
     }
 
     joinLobby(id: string, client: Socket, name: string) {
@@ -121,6 +122,7 @@ export class LobbyService {
     }
 
     destroyLobby(id) {
+        console.log("Lobby destroyed: "  + id)
         this.lobbies.delete(id);
     }
 
