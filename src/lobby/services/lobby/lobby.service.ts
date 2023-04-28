@@ -31,10 +31,13 @@ export class LobbyService {
 
     joinLobby(id: string, client: Socket, name: string) {
         if(this.players.has(client)) {
+            client.emit('error', 'player already joined a lobby');
+            console.log("Player already joined a lobby")
             return
         }
         this.players.set(client, id);
         if(this.lobbies.has(id)){
+            console.log(`Player joined ${id}`)
             this.lobbies.get(id).players.push(new Player(client, name));
             // Broadcast client
             this.lobbies.get(id).sendPlayers();
@@ -50,6 +53,7 @@ export class LobbyService {
             }
             return
         } else {
+            console.log(`Player tried to join ${id} but doesn't exist`)
             client.emit('join', {});
         }
         client.emit("error", "lobby doesn't exist")
