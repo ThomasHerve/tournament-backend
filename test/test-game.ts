@@ -14,12 +14,25 @@ socketCreator.on("create", (message)=>{
     })
 })
 
+let j = true;
+
+socketCreator.on("error", console.log)
+socketJoiner.on("error", console.log)
+
 socketCreator.on("start", (message)=>{
-    game();
+    console.log(message)
+    socketCreator.emit('vote', {left: true})
+    socketCreator.emit('vote', {left: true})
+    socketJoiner.emit('vote', {left: true})
 })
 
-// Game 
+socketCreator.on('round', (r)=>{
+    console.log(r)
+    socketCreator.emit('vote', {left: true})
+    socketJoiner.emit('vote', {left: true})
+})
 
-function game() {
-
-}
+socketCreator.on('end', (r)=>{
+    console.log("WINNER")
+    console.log(r)
+})
