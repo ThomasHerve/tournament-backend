@@ -123,7 +123,7 @@ export class LobbyService {
     }
 
     changeName(client: Socket, name: string) {
-        if(this.players.has(client)) {
+        if(this.players.has(client) && this.lobbies.get(this.players.get(client))) {
             this.lobbies.get(this.players.get(client)).changeName(client, name);
         }
     }
