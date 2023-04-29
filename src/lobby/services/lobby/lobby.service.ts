@@ -253,7 +253,7 @@ class Lobby {
             if(player === this.owner) {
                 isOwner = true
             }
-            players.push({name: player.name, isOwner: isOwner})
+            players.push({name: player.name, isOwner: isOwner, hasVoted: player.hasVoted})
         })
         this.players.forEach((player)=>{
             player.Socket.emit('players' ,{
@@ -407,6 +407,7 @@ class Lobby {
                 this.skip();
             }
             this.sendPlayers();
+            client.emit("voted", {left: left})
         } else if(player && player.hasVoted) {
             client.emit("error", "You already voted");
         }
