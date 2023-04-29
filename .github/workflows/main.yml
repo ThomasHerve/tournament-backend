@@ -43,4 +43,4 @@ jobs:
       run: docker -H ssh://odroid@${{secrets.ODROID_IP}} compose pull
 
     - name: deploy docker compose
-      run: docker -H ssh://odroid@${{secrets.ODROID_IP}} compose pull && docker -H ssh://odroid@${{secrets.ODROID_IP}} compose --env-file .env up -d --force-recreate
+      run: docker -H ssh://odroid@${{secrets.ODROID_IP}} compose pull && docker -H ssh://odroid@${{secrets.ODROID_IP}} compose tournament-backend --env-file .env up -d --force-recreate
