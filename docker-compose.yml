@@ -23,8 +23,8 @@ services:
       - 3000:80
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/bundle.crt:/etc/ssl/bundle.crt:ro
-      - ./nginx/private.key:/etc/ssl/private.key:ro
+      - ./certs/bundle.crt:/etc/ssl/bundle.crt:ro
+      - ./certs/private.key:/etc/ssl/private.key:ro
     depends_on:
       - tournament-backend
 
