@@ -201,6 +201,10 @@ export class LobbyService {
         console.log("get lobby for skip: " + this.lobbies.get(this.players.get(client)))
         console.log("all lobbies: ")
         console.log(this.lobbies)
+        if(!this.lobbies.get(this.players.get(client))) {
+            client.emit("error", "Not in a lobby, maybe it has been destroyed");
+            return
+        }
         if(this.lobbies.get(this.players.get(client)).owner.Socket === client) {
             if(this.lobbies.get(this.players.get(client)).started) {
                 this.lobbies.get(this.players.get(client)).skip();
