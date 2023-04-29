@@ -173,10 +173,12 @@ export class LobbyService {
     // Game part
     vote(client: Socket, message) {
         if(message === undefined) {
+            console.log("No data send on vote")
             client.emit("error", "no data send");
             return
         }
         if(message.left === undefined) {
+            console.log("Need a 'left' field on vote")
             client.emit("error", "need a 'left' field on vote");
             return
         }
@@ -184,13 +186,21 @@ export class LobbyService {
             if(this.lobbies.get(this.players.get(client)).started) {
                 this.lobbies.get(this.players.get(client)).vote(client, message.left);
             } else {
+                console.log("Game didn't started")
                 client.emit("error", "game didn't started");
             }
+        }
+        else {
+            console.log("Player doesn't exist")
         }
     }
 
     // If the owner send skip
     skip(client: Socket) {
+        console.log("get client for skip: " + this.players.get(client))
+        console.log("get lobby for skip: " + this.lobbies.get(this.players.get(client)))
+        console.log("all lobbies: ")
+        console.log(this.lobbies)
         if(this.lobbies.get(this.players.get(client)).owner.Socket === client) {
             if(this.lobbies.get(this.players.get(client)).started) {
                 this.lobbies.get(this.players.get(client)).skip();
