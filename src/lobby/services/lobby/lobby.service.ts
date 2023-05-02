@@ -197,10 +197,6 @@ export class LobbyService {
 
     // If the owner send skip
     skip(client: Socket) {
-        console.log("get client for skip: " + this.players.get(client))
-        console.log("get lobby for skip: " + this.lobbies.get(this.players.get(client)))
-        console.log("all lobbies: ")
-        console.log(this.lobbies)
         if(!this.lobbies.get(this.players.get(client))) {
             client.emit("error", "Not in a lobby, maybe it has been destroyed");
             return
@@ -362,16 +358,24 @@ class Lobby {
     }
 
     sendRound(client: Socket) {
-        client.emit('round', {
-            left: {
-                name: this.currentNode.left.entry.name,
-                link: this.currentNode.left.entry.link
-            },
-            right: {
-                name: this.currentNode.right.entry.name,
-                link: this.currentNode.right.entry.link
-            }
-        })
+        try {
+            client.emit('round', {
+                left: {
+                    name: this.currentNode.left.entry.name,
+                    link: this.currentNode.left.entry.link
+                },
+                right: {
+                    name: this.currentNode.right.entry.name,
+                    link: this.currentNode.right.entry.link
+                }
+            })
+        } catch (error) {
+            console.log("--------------")
+            console.log(error)
+            console.log(this.currentNode)
+            console.log("--------------")
+        }
+        
     }
 
     end() {
