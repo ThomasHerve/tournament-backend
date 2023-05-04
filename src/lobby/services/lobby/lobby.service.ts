@@ -350,6 +350,14 @@ class Lobby {
             return
         }
         this.currentNode = this.tree.getNextNode();
+
+        // Check for automatic resolution
+        if(this.currentNode.right.isFictive) {
+            this.currentNode.entry = this.currentNode.left.entry;
+            this.nextTurn();
+            return
+        }
+
         this.players.forEach((player)=>{
             player.hasVoted = false;
             player.vote = 0;

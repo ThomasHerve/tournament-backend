@@ -123,7 +123,7 @@ else {
       else {
         
         post('http://localhost:3000/tournament/create' , {
-            title: "test7",
+            title: "macron",
             description: "",
             icon: "",
             entries: [
@@ -146,6 +146,10 @@ else {
               {
                 name: "poire",
                 link: "poire"
+              },
+              {
+                name: "truc",
+                link: "truc"
               },
             ]
           }, token).then((r)=>{
