@@ -395,6 +395,10 @@ class Lobby {
         })
         // RESET
         this.started = false;
+        this.tournament_id = null;
+        this.tournament = null;
+        this.size = null;
+        this.tree = null;
     }
 
     // A client vote
