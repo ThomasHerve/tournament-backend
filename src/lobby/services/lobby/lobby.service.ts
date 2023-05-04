@@ -452,10 +452,12 @@ class Lobby {
                 res = "right"
             }
         }
-        // Send data
-        this.players.forEach((player)=>{
-            this.sendVote(player.Socket, res);
-        })
+        // Send data if not ended
+        if(!this.tree.getIsOver()){
+            this.players.forEach((player)=>{
+                this.sendVote(player.Socket, res);
+            })
+        }
         this.nextTurn();
     }
 
