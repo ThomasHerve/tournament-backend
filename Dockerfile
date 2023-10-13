@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Replace database reference
-RUN sed -i 's/localhost/tournament-prod-app.tournament-prod.svc.cluster.local/g' .env
+RUN sed -i 's/localhost/tournament-prod-postgresql.tournament-prod.svc.cluster.local/g' .env
 
 # Creates a "dist" folder with the production build
 RUN npm run build
