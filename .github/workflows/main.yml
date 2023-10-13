@@ -37,4 +37,4 @@ jobs:
       run: docker -H ssh://debian@${{secrets.CLUSTER_IP}} images prune
       
     - name: Build the Docker image
-      run: docker -H ssh://debian@${{secrets.CLUSTER_IP}} build --pull -t ${{secrets.DOCKER_LOGIN}}/tournament-frontend --output type=registry .
+      run: docker -H ssh://debian@${{secrets.CLUSTER_IP}} build --pull -t ${{secrets.DOCKER_LOGIN}}/tournament-backend --output type=registry .
