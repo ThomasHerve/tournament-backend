@@ -12,7 +12,7 @@ import { JwtStrategy } from './services/users/jwt.strategy';
 @Module({
   imports: [TypeOrmModule.forFeature([User]), PassportModule, JwtModule.register({
     secret: jwtConstants.secret,
-    signOptions: { expiresIn: '3600s' },
+    signOptions: { expiresIn: '36000000s' },
   })],
   controllers: [UsersController],
   providers: [UsersService, LocalStrategy, JwtStrategy]
