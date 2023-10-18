@@ -117,7 +117,8 @@ export class TournamentService {
         const user: User = await this.userService.getUser(username)
         const tournament = user.tournaments.find((element)=>element.id == tournament_id);
         if(tournament){
-            return this.tournamentRepository.delete(tournament);
+            this.tournamentRepository.delete(tournament);
+            return true
         }
         throw new HttpException("Tournament doesn't exist", HttpStatus.FORBIDDEN)
     }
