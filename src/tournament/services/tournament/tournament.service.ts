@@ -108,7 +108,8 @@ export class TournamentService {
                 entry.entries = createTournamentDto.entries;
                 await this.insertTournamentEntries(entry, user.username, tournament.id);
             }
-            return {"title": tournament.title, "id": tournament.id, "description": tournament.description, "icon": tournament.icon, "entries": await this.getTournamentEntries(tournament.id)}
+            return {"id": tournament.id}
+            //return {"title": tournament.title, "id": tournament.id, "description": tournament.description, "icon": tournament.icon, "entries": await this.getTournamentEntries(tournament.id)}
         }
         throw new HttpException('Tournament already exist', HttpStatus.CONFLICT)
     }
