@@ -82,11 +82,13 @@ export class LobbyService {
                     this.destroyLobby(id);
                 } else {
                     // Check if leaver is owner
-                    if(this.lobbies.get(id).owner.Socket === client) {
+                    if(this.lobbies.get(id) !== undefined && this.lobbies.get(id).owner.Socket === client) {
                         this.lobbies.get(id).sendOwner();
                     }
                     // Broadcast client
-                    this.lobbies.get(id).sendPlayers();
+                    if(this.lobbies.get(id) !== undefined) {
+                        this.lobbies.get(id).sendPlayers();
+                    }
                 }
                 return
             }
@@ -390,7 +392,8 @@ class Lobby {
         this.players.forEach((player)=>{
             player.Socket.emit('end', {
                 name: this.currentNode.entry.name,
-                link: this.currentNode.entry.link
+                link: this.currentNode.entry.link,
+                tree: this.tree.createJSONTree(this.tree.head)
             })
         })
         // RESET
@@ -464,7 +467,6 @@ class Lobby {
         }
         this.nextTurn();
     }
-
 }
 
 class TournamentNode {
@@ -595,6 +597,17 @@ class TournamentTree {
             } else {
                 console.log(stars + " " + node.entry.name);
             }
+        }
+    }
+
+    createJSONTree(node: TournamentNode) {
+        if(node == undefined) {
+            return undefined
+        }
+        return {
+            value: node.entry,
+            left: this.createJSONTree(node.left),
+            right: this.createJSONTree(node.right)
         }
     }
 }

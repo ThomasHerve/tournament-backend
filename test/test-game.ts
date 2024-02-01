@@ -35,4 +35,33 @@ socketCreator.on('round', (r)=>{
 socketCreator.on('end', (r)=>{
     console.log("WINNER")
     console.log(r)
+    printTree(r.tree, 0)
 })
+
+function printTree(node, currentDepth) {
+    let stars = ""
+    for(let i = 0; i < currentDepth; i++) {
+        stars += "*";
+    }
+    if(node.left && node.right) {
+        if(node.value) {
+            if(node.value)
+                console.log(stars + " " + node.value.name)
+            else
+                console.log(stars)
+        } else {
+            console.log(stars)
+        }
+        printTree(node.left, currentDepth+1);
+        printTree(node.right, currentDepth+1);
+    } else {
+        if(node.isFictive) {
+            console.log(stars + " fictive");
+        } else {
+            if(node.value)
+                console.log(stars + " " + node.value.name);
+            else
+            console.log(stars);
+        }
+    }
+}
