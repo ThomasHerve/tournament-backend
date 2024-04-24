@@ -32,9 +32,6 @@ jobs:
           ssh-private-key: ${{ secrets.CLUSTER_SSH_KEY }}
     - name: add ssh key
       run: ssh-keyscan -H ${{secrets.CLUSTER_IP}} >> ~/.ssh/known_hosts
-
-    - name: clean images prune
-      run: docker -H ssh://debian@${{secrets.CLUSTER_IP}} images prune
       
     - name: Build the Docker image
-      run: docker -H ssh://debian@${{secrets.CLUSTER_IP}} build --pull -t ${{secrets.DOCKER_LOGIN}}/tournament-backend --output type=registry .
+      run: docker build --pull -t ${{secrets.DOCKER_LOGIN}}/tournament-backend --output type=registry .

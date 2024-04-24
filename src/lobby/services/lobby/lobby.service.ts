@@ -387,10 +387,12 @@ class Lobby {
     }
 
     end() {
+        let tree = this.tree.getAllTreeAsJSON();
         this.players.forEach((player)=>{
             player.Socket.emit('end', {
                 name: this.currentNode.entry.name,
-                link: this.currentNode.entry.link
+                link: this.currentNode.entry.link,
+                tree: tree
             })
         })
         // RESET
@@ -597,6 +599,24 @@ class TournamentTree {
             }
         }
     }
+
+    getAllTreeAsJSON() {
+        return this.getTreeRecursive(this.head);
+    }
+
+    getTreeRecursive(node: TournamentNode) {
+        let obj = {
+            link: node.entry.link,
+            name: node.entry.name
+        }
+        if(node.right && !node.right.isFictive) {
+            obj["rigth"] = this.getTreeRecursive(node.right);
+        }
+        if(node.left && !node.left.isFictive) {
+            obj["left"] = this.getTreeRecursive(node.left);
+        }
+    }
+    
 }
 
 class Queue {
