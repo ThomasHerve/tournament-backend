@@ -67,9 +67,9 @@ export class UsersService {
   async login(user: any) {
     const username  = user
     user = await this.userRepository.findOne({
-      where: {username}
+      where: {"username": username}
     });
-    if(user === null) {
+    if(user === null || username == undefined) {
       throw new HttpException('Failed to login', HttpStatus.FORBIDDEN)
     } else {
       const payload = { username: user.username, userId: user.id };

@@ -108,7 +108,8 @@ export class TournamentService {
                 entry.entries = createTournamentDto.entries;
                 await this.insertTournamentEntries(entry, user.username, tournament.id);
             }
-            return {"title": tournament.title, "id": tournament.id, "description": tournament.description, "icon": tournament.icon, "entries": await this.getTournamentEntries(tournament.id)}
+            return {"id": tournament.id}
+            //return {"title": tournament.title, "id": tournament.id, "description": tournament.description, "icon": tournament.icon, "entries": await this.getTournamentEntries(tournament.id)}
         }
         throw new HttpException('Tournament already exist', HttpStatus.CONFLICT)
     }
@@ -117,7 +118,8 @@ export class TournamentService {
         const user: User = await this.userService.getUser(username)
         const tournament = user.tournaments.find((element)=>element.id == tournament_id);
         if(tournament){
-            return this.tournamentRepository.delete(tournament);
+            this.tournamentRepository.delete(tournament);
+            return true
         }
         throw new HttpException("Tournament doesn't exist", HttpStatus.FORBIDDEN)
     }

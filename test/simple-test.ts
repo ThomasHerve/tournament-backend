@@ -127,19 +127,3 @@ function get(url, token) {
   });
 }
 
-post("http://localhost:3000/users/login", {
-        username: "test",
-        password: "testtestt",
-    }, false).then((res)=>{
-      console.log(res)
-        const v = JSON.parse(res);
-        const token = v["access_token"];
-        get('http://localhost:3000/tournament/allcreated' , token).then((tournament)=>{
-            //tournament = JSON.parse(tournament)[0]
-            console.log(`Tournaments: ${tournament}`);
-            //delete_("http://localhost:3000/tournament/"+tournament.id, token).then((res)=>{
-            //    console.log(res)
-            //})
-    })
-
-    })

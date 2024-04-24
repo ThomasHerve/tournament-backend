@@ -82,11 +82,13 @@ export class LobbyService {
                     this.destroyLobby(id);
                 } else {
                     // Check if leaver is owner
-                    if(this.lobbies.get(id).owner.Socket === client) {
+                    if(this.lobbies.get(id) !== undefined && this.lobbies.get(id).owner.Socket === client) {
                         this.lobbies.get(id).sendOwner();
                     }
                     // Broadcast client
-                    this.lobbies.get(id).sendPlayers();
+                    if(this.lobbies.get(id) !== undefined) {
+                        this.lobbies.get(id).sendPlayers();
+                    }
                 }
                 return
             }
@@ -466,7 +468,6 @@ class Lobby {
         }
         this.nextTurn();
     }
-
 }
 
 class TournamentNode {
