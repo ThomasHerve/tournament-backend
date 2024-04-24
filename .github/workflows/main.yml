@@ -26,12 +26,6 @@ jobs:
 
     - name: Connect to dockerhub
       run: docker login -u ${{secrets.DOCKER_LOGIN}} -p ${{secrets.DOCKER_PASSWORD}}
-
-    - uses: webfactory/ssh-agent@v0.7.0
-      with:
-          ssh-private-key: ${{ secrets.CLUSTER_SSH_KEY }}
-    - name: add ssh key
-      run: ssh-keyscan -H ${{secrets.CLUSTER_IP}} >> ~/.ssh/known_hosts
       
     - name: Build the Docker image
       run: docker build --pull -t ${{secrets.DOCKER_LOGIN}}/tournament-backend --output type=registry .

@@ -617,6 +617,7 @@ class TournamentTree {
         if(node.left && !node.left.isFictive) {
             obj["left"] = this.getTreeRecursive(node.left);
         }
+        return obj
     }
     
 }
