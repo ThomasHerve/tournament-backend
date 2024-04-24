@@ -390,6 +390,7 @@ class Lobby {
 
     end() {
         let tree = this.tree.getAllTreeAsJSON();
+        console.log(tree)
         this.players.forEach((player)=>{
             player.Socket.emit('end', {
                 name: this.currentNode.entry.name,
