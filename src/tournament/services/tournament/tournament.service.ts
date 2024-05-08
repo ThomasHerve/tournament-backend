@@ -177,8 +177,9 @@ export class TournamentService {
                 })
                 this.tournamentEntriesRepository.save(entry);
                 tournament.entries.push(entry);
-                console.log(`Entry add to ${tournament_id}: ${entry}`)
+                console.log(`Entry add to ${tournament_id}: ${entry.name}`)
             });
+            console.log(`FInally saving entries for ${tournament_id}`)
             await this.tournamentRepository.save(tournament);
             return tournamentEntries;
         } 
