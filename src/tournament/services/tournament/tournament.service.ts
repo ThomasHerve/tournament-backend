@@ -191,38 +191,29 @@ export class TournamentService {
                 }
             }*/
 
-            // Démarrer une transaction
-            const queryRunner = this.tournamentEntriesRepository.manager.connection.createQueryRunner();
-            await queryRunner.startTransaction();
-
             try {
-                for (const element of tournamentEntries.entries) {
-                    console.log(`Try to add to ${tournament_id}: ${element.name}`);
-                    const entry = this.tournamentEntriesRepository.create({
+                console.log(`Adding entries to tournament ID: ${tournament_id}`);
+        
+                // Regroupez tous les éléments dans une liste d'objets TournamentEntry
+                const entryList: TournamentEntry[] = tournamentEntries.entries.map((element) => {
+                    return this.tournamentEntriesRepository.create({
                         tournament: tournament,
                         name: element.name,
-                        link: element.link
+                        link: element.link,
                     });
-                    console.log(`Created ${tournament_id}: ${element.name}`);
-
-                    // Utilisez le query runner pour sauvegarder l'entrée dans la transaction
-                    await queryRunner.manager.save(entry);
-
-                    // Ajouter l'entrée à la liste du tournoi
-                    tournament.entries.push(entry);
-                    console.log(`Entry added to ${tournament_id}: ${entry.name}`);
-                }
-
-                // Si toutes les opérations ont réussi, validez la transaction
-                await queryRunner.commitTransaction();
+                });
+        
+                // Sauvegardez tous les objets en une seule opération d'insertion en masse
+                const savedEntries = await this.tournamentEntriesRepository.save(entryList);
+        
+                // Ajoutez tous les enregistrements sauvegardés à la liste des entrées du tournoi
+                tournament.entries.push(...savedEntries);
+                
+                console.log(`Successfully added ${savedEntries.length} entries to tournament ID: ${tournament_id}`);
             } catch (e) {
-                // En cas d'erreur, annulez la transaction
-                await queryRunner.rollbackTransaction();
                 console.error(`Failed to add entries to ${tournament_id}: ${(e as Error).message}`);
-            } finally {
-                // Libérez le query runner
-                await queryRunner.release();
             }
+        
         
             console.log(`FInally saving entries for ${tournament_id}`)
             await this.tournamentRepository.save(tournament);
