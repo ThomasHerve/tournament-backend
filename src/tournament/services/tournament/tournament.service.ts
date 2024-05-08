@@ -125,6 +125,7 @@ export class TournamentService {
     }
 
     async updateTournament(@Body() createTournamentDto: CreateTournamentDto, username: string, tournament_id: number) {
+        console.log(`Update tournament ${tournament_id}`)
         const user: User = await this.userService.getUser(username)
         const name = createTournamentDto.title
         const tournament = await this.tournamentRepository.findOne({
@@ -176,6 +177,7 @@ export class TournamentService {
                 })
                 this.tournamentEntriesRepository.save(entry);
                 tournament.entries.push(entry);
+                console.log(`Entry add to ${tournament_id}: ${entry}`)
             });
             await this.tournamentRepository.save(tournament);
             return tournamentEntries;
