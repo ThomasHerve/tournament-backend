@@ -169,6 +169,7 @@ export class TournamentService {
         });
         if(tournament){
             tournament.entries = [];
+            /*
             for (const element of tournamentEntries.entries) {
                 console.log(`Try to add to ${tournament_id}: ${element.name}`);
                 try {
@@ -188,6 +189,39 @@ export class TournamentService {
                 } catch (e) {
                     console.error(`Failed to add entry ${element.name} to ${tournament_id}: ${(e as Error).message}`);
                 }
+            }*/
+
+            // Démarrer une transaction
+            const queryRunner = this.tournamentEntriesRepository.manager.connection.createQueryRunner();
+            await queryRunner.startTransaction();
+
+            try {
+                for (const element of tournamentEntries.entries) {
+                    console.log(`Try to add to ${tournament_id}: ${element.name}`);
+                    const entry = this.tournamentEntriesRepository.create({
+                        tournament: tournament,
+                        name: element.name,
+                        link: element.link
+                    });
+                    console.log(`Created ${tournament_id}: ${element.name}`);
+
+                    // Utilisez le query runner pour sauvegarder l'entrée dans la transaction
+                    await queryRunner.manager.save(entry);
+
+                    // Ajouter l'entrée à la liste du tournoi
+                    tournament.entries.push(entry);
+                    console.log(`Entry added to ${tournament_id}: ${entry.name}`);
+                }
+
+                // Si toutes les opérations ont réussi, validez la transaction
+                await queryRunner.commitTransaction();
+            } catch (e) {
+                // En cas d'erreur, annulez la transaction
+                await queryRunner.rollbackTransaction();
+                console.error(`Failed to add entries to ${tournament_id}: ${(e as Error).message}`);
+            } finally {
+                // Libérez le query runner
+                await queryRunner.release();
             }
         
             console.log(`FInally saving entries for ${tournament_id}`)
