@@ -170,14 +170,20 @@ export class TournamentService {
         if(tournament){
             tournament.entries = [];
             tournamentEntries.entries.forEach(element => {
-                const entry = this.tournamentEntriesRepository.create({
-                    tournament: tournament,
-                    name: element.name,
-                    link: element.link
-                })
-                this.tournamentEntriesRepository.save(entry);
-                tournament.entries.push(entry);
-                console.log(`Entry add to ${tournament_id}: ${entry.name}`)
+                console.log(`Try to add to ${tournament_id}: ${element.name}`)
+                try {
+                    const entry = this.tournamentEntriesRepository.create({
+                        tournament: tournament,
+                        name: element.name,
+                        link: element.link
+                    })
+                    this.tournamentEntriesRepository.save(entry);
+                    tournament.entries.push(entry);
+                    console.log(`Entry add to ${tournament_id}: ${entry.name}`)
+                }
+                catch (e) {
+                    console.log((e as Error).message);
+                }
             });
             console.log(`FInally saving entries for ${tournament_id}`)
             await this.tournamentRepository.save(tournament);
