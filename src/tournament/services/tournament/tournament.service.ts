@@ -177,6 +177,7 @@ export class TournamentService {
                         name: element.name,
                         link: element.link
                     })
+                    console.log(`Created ${tournament_id}: ${element.name}`)
                     this.tournamentEntriesRepository.save(entry);
                     tournament.entries.push(entry);
                     console.log(`Entry add to ${tournament_id}: ${entry.name}`)
