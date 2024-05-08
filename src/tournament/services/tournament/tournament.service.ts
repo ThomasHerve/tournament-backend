@@ -169,23 +169,27 @@ export class TournamentService {
         });
         if(tournament){
             tournament.entries = [];
-            tournamentEntries.entries.forEach(element => {
-                console.log(`Try to add to ${tournament_id}: ${element.name}`)
+            for (const element of tournamentEntries.entries) {
+                console.log(`Try to add to ${tournament_id}: ${element.name}`);
                 try {
                     const entry = this.tournamentEntriesRepository.create({
                         tournament: tournament,
                         name: element.name,
                         link: element.link
-                    })
-                    console.log(`Created ${tournament_id}: ${element.name}`)
-                    this.tournamentEntriesRepository.save(entry);
+                    });
+                    console.log(`Created ${tournament_id}: ${element.name}`);
+        
+                    // Attendre que l'insertion soit terminée avant de passer à la suivante
+                    await this.tournamentEntriesRepository.save(entry);
+        
+                    // Ajouter l'entrée à la liste du tournoi
                     tournament.entries.push(entry);
-                    console.log(`Entry add to ${tournament_id}: ${entry.name}`)
+                    console.log(`Entry added to ${tournament_id}: ${entry.name}`);
+                } catch (e) {
+                    console.error(`Failed to add entry ${element.name} to ${tournament_id}: ${(e as Error).message}`);
                 }
-                catch (e) {
-                    console.log((e as Error).message);
-                }
-            });
+            }
+        
             console.log(`FInally saving entries for ${tournament_id}`)
             await this.tournamentRepository.save(tournament);
             return tournamentEntries;
