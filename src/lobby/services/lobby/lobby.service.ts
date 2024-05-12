@@ -50,6 +50,7 @@ export class LobbyService {
                 const lobby = this.lobbies.get(id)
                 lobby.sendTournamentToOneClient(client);
                 lobby.SendStartToLateJoiningCLient(client);
+                lobby.sendRound(client);
             }
             return
         } else {
