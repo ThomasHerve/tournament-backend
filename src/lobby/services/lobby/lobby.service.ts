@@ -49,7 +49,7 @@ export class LobbyService {
             if(this.lobbies.get(id).started) {
                 const lobby = this.lobbies.get(id)
                 lobby.sendTournamentToOneClient(client);
-                lobby.sendRound(client);
+                lobby.SendStartToLateJoiningCLient(client);
             }
             return
         } else {
@@ -386,6 +386,27 @@ class Lobby {
             console.log("--------------")
         }
         
+    }
+
+    SendStartToLateJoiningCLient(client: Socket) {
+        try {
+            client.emit('start', {
+                left: {
+                    name: this.currentNode.left.entry.name,
+                    link: this.currentNode.left.entry.link
+                },
+                right: {
+                    name: this.currentNode.right.entry.name,
+                    link: this.currentNode.right.entry.link
+                }
+            })
+        } catch (error) {
+            console.log("--------------")
+            console.log(error)
+            console.log(this.currentNode)
+            console.log("--------------")
+        }
+
     }
 
     end() {
