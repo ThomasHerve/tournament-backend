@@ -155,7 +155,9 @@ export class LobbyService {
             }
             this.lobbies.get(this.players.get(client)).tournament_id = options.tournament.id;
             this.lobbies.get(this.players.get(client)).tournament = tournament
-            this.lobbies.get(this.players.get(client)).size = tournament.entries.length
+            let size = tournament.entries.length
+            if(options.size && typeof options.size === "number" && options.size < size && options.size > 1) size = options.size
+            this.lobbies.get(this.players.get(client)).size = size
             this.lobbies.get(this.players.get(client)).sendTournament()
         } else {
             client.emit("error", "You cannot change the rule if you are not the owner of the lobby")
@@ -515,7 +517,7 @@ class TournamentTree {
         this.head = new TournamentNode();
 
         this.counter = 0;
-        this.entries = this.shuffle(tournament.entries);
+        this.entries = this.shuffle(tournament.entries).slice(0, size);
         this.createTree(this.head, 1);
 
         /* tests

@@ -7,7 +7,7 @@ socketCreator.emit("create", {name: "test"});
 socketCreator.on("create", (message)=>{
     socketJoiner.emit("join", {name: "joiner", id: message.id})
     socketJoiner.on("join", (message)=>{
-        socketCreator.emit("setOptions", {tournament: {id: 1}})      
+        socketCreator.emit("setOptions", {tournament: {id: 1}, size: 2})      
         socketCreator.on("tournament", (message)=>{
             socketCreator.emit("launch")
         })
