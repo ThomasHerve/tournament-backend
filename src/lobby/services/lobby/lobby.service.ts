@@ -380,7 +380,8 @@ class Lobby {
                 right: {
                     name: this.currentNode.right.entry.name,
                     link: this.currentNode.right.entry.link
-                }
+                },
+                round: this.currentNode.depth
             })
         } catch (error) {
             console.log("--------------")
@@ -500,6 +501,7 @@ class TournamentNode {
     left: TournamentNode
     right: TournamentNode
     isFictive: boolean = false;
+    depth: number
 }
 
 class TournamentTree {
@@ -538,6 +540,7 @@ class TournamentTree {
     // Tree creation
 
     createTree(node: TournamentNode, currentDepth: number) {
+        node.depth = this.depth - currentDepth;
         if(currentDepth === this.depth) {
             if(this.counter >= this.size) {
                 // Fictive node
