@@ -14,7 +14,8 @@ export class LobbyService {
 
     createLobby(client: Socket, name: string) {
         if(this.players.has(client)) {
-            return
+            // Client was in another lobby, lets remove him
+            this.leavelobby(client);
         }
         let id: string = this.generateID();
         while(this.lobbies.has(id)){
