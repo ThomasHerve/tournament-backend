@@ -293,6 +293,7 @@ class Lobby {
     }
 
     sendStart() {
+        console.log(`tournament ${this.tournament_id} send start to his clients`)
         const players = []
         this.players.forEach((player)=>{
             players.push({name: player.name, hasVoted: player.hasVoted})
