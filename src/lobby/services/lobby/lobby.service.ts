@@ -395,6 +395,7 @@ class Lobby {
     }
 
     SendStartToLateJoiningCLient(client: Socket) {
+        console.log("Late joining client")
         try {
             client.emit('start', {
                 left: {
