@@ -293,7 +293,7 @@ class Lobby {
     }
 
     sendStart() {
-        console.log(`tournament ${this.tournament_id} send start to his clients`)
+        console.log(`tournament ${this.tournament_id} send start to his clients, his owner is ${this.owner}`)
         const players = []
         this.players.forEach((player)=>{
             players.push({name: player.name, hasVoted: player.hasVoted})
@@ -311,6 +311,7 @@ class Lobby {
         this.players.forEach((player)=>{
             player.hasVoted = false;
             player.vote = 0;
+            console.log(`tournament ${this.tournament_id} send ${player}: ${this.currentNode.left.entry.name} and ${this.currentNode.right.entry.name}`)
             player.Socket.emit(
                 'start', {
                     left: {
