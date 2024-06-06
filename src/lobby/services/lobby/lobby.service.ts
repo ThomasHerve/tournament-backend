@@ -143,6 +143,7 @@ export class LobbyService {
     async setOptions(client: Socket, options) {
         // options.tournament -> id
         if(this.players.get(client) && this.lobbies.get(this.players.get(client)) && this.lobbies.get(this.players.get(client)).owner.Socket === client) {
+            console.log("Select tournament " +  options.tournament.id + " for lobby " + this.lobbies.get(this.players.get(client)).tournament_id)
             if(this.lobbies.get(this.players.get(client)).started) {
                 client.emit("error", "The tournament already started")
                 return "Already started"
