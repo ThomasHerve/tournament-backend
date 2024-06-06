@@ -375,6 +375,7 @@ class Lobby {
     }
 
     sendRound(client: Socket) {
+        console.log(`Send round to a client: ${this.currentNode.left.entry.name} and ${this.currentNode.right.entry.name}`)
         try {
             client.emit('round', {
                 left: {
