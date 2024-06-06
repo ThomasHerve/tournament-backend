@@ -386,7 +386,8 @@ class Lobby {
                     name: this.currentNode.right.entry.name,
                     link: this.currentNode.right.entry.link
                 },
-                round: this.currentNode.depth
+                round: this.currentNode.depth,
+                random: Math.random()
             })
         } catch (error) {
             console.log("--------------")
