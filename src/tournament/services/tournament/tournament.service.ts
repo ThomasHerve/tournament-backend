@@ -60,13 +60,20 @@ export class TournamentService {
             }, relations: {
                 entries: true,
             }, select: [
-                "title", "id", "description", "entries", "icon"
+                "title", "id", "description", "entries", "icon", "user"
             ]
         });
         if(!tournament) {
             throw new NotFoundException();
         }
-        return tournament;
+        return {
+            "title": tournament.title,
+            "id": tournament.id,
+            "description": tournament.description,
+            "entries": tournament.entries,
+            "icon": tournament.icon,
+            "creator": tournament.user.username
+        };
     }
 
     // With auth 
