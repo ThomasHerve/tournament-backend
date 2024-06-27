@@ -45,4 +45,9 @@ export class UsersController {
     getProfile(@Request() req) {
       return req.user.username;
     }
+
+    @Get('isAdmin')
+    getIsAdmin(@Request() req) {
+      return req.user.admin;
+    }
 }
