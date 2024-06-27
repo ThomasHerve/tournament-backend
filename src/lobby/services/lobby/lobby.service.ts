@@ -148,7 +148,7 @@ export class LobbyService {
                 client.emit("error", "The tournament already started")
                 return "Already started"
             }
-            let tournament: Tournament
+            let tournament: any
             try  {
                 tournament = await this.tournamentService.getTournament(options.tournament.id);
             } catch(e) {
