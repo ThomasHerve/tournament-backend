@@ -80,13 +80,37 @@ export class TournamentService {
     // With auth 
     async getTournaments(username: string){
         const user: User = await this.userService.getUser(username)
-        return this.tournamentRepository.find({
-            where: {
-                user: user
-            }, select: [
+        if(!user.admin) {
+            return this.tournamentRepository.find({
+                where: {
+                    user: user
+                }, select: [
+                    "title", "id", "description", "entries", "icon"
+                ]
+            })
+        }
+        const tournament = await this.tournamentRepository.find({
+            relations: {
+                user: true,
+            },
+            select: [
                 "title", "id", "description", "entries", "icon"
             ]
         })
+        let tournaments = []
+        tournament.forEach((t)=>{
+            tournaments.push(
+                {
+                    "title": t.title,
+                    "id": t.id,
+                    "description": t.description,
+                    "entries": t.entries,
+                    "icon": t.icon,
+                    "creator": t.user.username
+                }
+            )
+        })
+        return tournaments;
     }
 
     async createTournament(@Body() createTournamentDto: CreateTournamentDto, username: string) {
