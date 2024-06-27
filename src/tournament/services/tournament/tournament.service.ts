@@ -59,6 +59,7 @@ export class TournamentService {
                 id: tournament_id
             }, relations: {
                 entries: true,
+                user: true,
             }, select: [
                 "title", "id", "description", "entries", "icon", "user"
             ]
