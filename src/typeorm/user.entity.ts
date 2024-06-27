@@ -28,6 +28,12 @@ export class User {
   })
   password: string;
 
+  @Column({
+    nullable: false,
+    default: false,
+  })
+  admin: boolean;
+
   @OneToMany(() => Tournament, (tournament) => tournament.user)
   tournaments: Tournament[]
 }
