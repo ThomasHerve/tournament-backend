@@ -47,7 +47,8 @@ export class UsersController {
     }
 
     @Get('isAdmin')
-    getIsAdmin(@Request() req) {
-      return req.user.admin;
+    async getIsAdmin(@Request() req) {
+      let user = await this.userService.getUser(req.user.username)
+      return user.admin;
     }
 }

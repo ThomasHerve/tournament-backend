@@ -20,7 +20,7 @@ export class UsersService {
   async getUser(username:string) {
     let user: User = await this.userRepository.findOne({
       where: {username},
-      select: ["email", "id", "tournaments", "username"],
+      select: ["email", "id", "tournaments", "username", "admin"],
       relations: {
         tournaments: true,
       },
