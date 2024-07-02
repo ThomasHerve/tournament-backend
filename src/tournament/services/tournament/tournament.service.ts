@@ -152,6 +152,14 @@ export class TournamentService {
         if(tournament){
             this.tournamentRepository.delete(tournament);
             return true
+        } else if(user.admin) {
+            const tournament = await this.tournamentRepository.findOne({
+                where: {
+                    id: tournament_id
+                }
+            })
+            this.tournamentRepository.delete(tournament);
+            return true
         }
         throw new HttpException("Tournament doesn't exist", HttpStatus.FORBIDDEN)
     }
@@ -183,6 +191,30 @@ export class TournamentService {
                 await this.insertTournamentEntries(entry, user.username, tournament.id);
             }
             return {"title": tournament.title, "id": tournament.id, "description": tournament.description, "icon": tournament.icon, "entries": await this.getTournamentEntries(tournament.id)}
+        }
+        else if(user.admin) {
+            const tournament = await this.tournamentRepository.findOne({
+                where: {
+                    id: tournament_id
+                }, relations: {
+                    entries: true,
+                },
+            })
+            if(tournament) {
+                tournament.title = name
+                tournament.description = createTournamentDto.description,
+                tournament.icon = createTournamentDto.icon,
+                tournament.entries = []
+                const newTournament = await this.tournamentRepository.save(tournament);
+                this.userService.addTournament(user, newTournament)
+                // Entries
+                if(createTournamentDto.entries) {
+                    const entry: TournamentEntries = new TournamentEntries();
+                    entry.entries = createTournamentDto.entries;
+                    await this.insertTournamentEntries(entry, user.username, tournament.id);
+                }
+                return {"title": tournament.title, "id": tournament.id, "description": tournament.description, "icon": tournament.icon, "entries": await this.getTournamentEntries(tournament.id)}    
+            }
         }
         throw new HttpException('Tournament doesn\'t exist', HttpStatus.CONFLICT)
     }
