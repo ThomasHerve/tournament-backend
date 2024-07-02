@@ -206,12 +206,12 @@ export class TournamentService {
                 tournament.icon = createTournamentDto.icon,
                 tournament.entries = []
                 const newTournament = await this.tournamentRepository.save(tournament);
-                this.userService.addTournament(user, newTournament)
+                this.userService.addTournament(tournament.user, newTournament)
                 // Entries
                 if(createTournamentDto.entries) {
                     const entry: TournamentEntries = new TournamentEntries();
                     entry.entries = createTournamentDto.entries;
-                    await this.insertTournamentEntries(entry, user.username, tournament.id);
+                    await this.insertTournamentEntries(entry, tournament.user.username, tournament.id);
                 }
                 return {"title": tournament.title, "id": tournament.id, "description": tournament.description, "icon": tournament.icon, "entries": await this.getTournamentEntries(tournament.id)}    
             }
